@@ -35,6 +35,7 @@ class _AddFriendState extends State<AddFriend> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: () {
+
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
@@ -72,48 +73,43 @@ class _AddFriendState extends State<AddFriend> {
               ],
             ),
 
-            Column(
-              children: [
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16,horizontal: 24),
-                    child: CWidget.commonTextField(
-                     onChanges: (p0) async{
-                       var a = await FireBaseManager.searchUsersByNumber(controller: phoneEditingController);
-                        user.clear();
-                        user.addAll(a);
-                        setState(() {});
-                     },
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16,horizontal: 24),
+                child: CWidget.commonTextField(
+                 onChanges: (p0) async{
+                   var a = await FireBaseManager.searchUsersByNumber(controller: phoneEditingController);
+                    user.clear();
+                    user.addAll(a);
+                    setState(() {});
+                 },
 
-                      isBorder: true,
-                      context,
+                  isBorder: true,
+                  context,
 
 
-                      controller: phoneEditingController,
-                      onCountryChanged: (p0) {},
-                      dialCode: "+91",
-                      dialogBackgroundColor: isDark
-                          ? AppColors.backgroundDark
-                          : AppColors.backgroundLight,
-                    ),
-                  ),
+                  controller: phoneEditingController,
+                  onCountryChanged: (p0) {},
+                  dialCode: "+91",
+                  dialogBackgroundColor: isDark
+                      ? AppColors.backgroundDark
+                      : AppColors.backgroundLight,
                 ),
-               user.isEmpty? Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 60,
-                    horizontal: 18,
-                  ),
-                  child: Image.asset("assets/images/add_frnd_BG.png",height: 286,width: 240,),
-                ):SizedBox(
-                 height: 200,
-                  child: ListView.builder(
-                    itemCount: user.length,
-                    itemBuilder: (context, index) {
-                    return Text(user[index][FireBaseManager.userName]);
-                  },),
-                ),
-
-              ],
+              ),
+            ),
+                           user.isEmpty? Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 60,
+                horizontal: 18,
+              ),
+              child: Image.asset("assets/images/add_frnd_BG.png",height: 286,width: 240,),
+            ):SizedBox(
+             height: 200,
+              child: ListView.builder(
+                itemCount: user.length,
+                itemBuilder: (context, index) {
+                return Text(user[index][FireBaseManager.userName]);
+              },),
             ),
           ],
         ),

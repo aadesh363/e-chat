@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_chat/add_friend/add_friend.dart';
 import 'package:e_chat/home_page/navigationdata.dart';
+import 'package:e_chat/utilities/Fire_base_manager.dart';
 import 'package:e_chat/utilities/commonColors.dart';
 import 'package:flutter/material.dart';
 
@@ -169,7 +171,7 @@ class _ChatsHomePageState extends State<ChatsHomePage> {
     );
   }
 
-  static Widget chatData() {
+  static dynamic chatData() {
     List<UserData> userdata = [
       UserData(
         name: "David Wayne",
@@ -221,7 +223,7 @@ class _ChatsHomePageState extends State<ChatsHomePage> {
         pendingMessageCount: "",
       ),
     ];
-
+    
     return ListView.builder(
       itemCount: userdata.length,
 

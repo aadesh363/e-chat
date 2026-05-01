@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_chat/utilities/Fire_base_manager.dart';
 import 'package:e_chat/utilities/commonColors.dart';
@@ -15,6 +17,9 @@ class _AddFriendState extends State<AddFriend> {
   final searchController = TextEditingController();
   final user = [];
   bool typeStart = false;
+
+
+
 
   TextEditingController phoneEditingController = TextEditingController();
 
@@ -41,6 +46,7 @@ class _AddFriendState extends State<AddFriend> {
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         body: Column(
+
           children: [
             Stack(
               children: [
@@ -108,7 +114,62 @@ class _AddFriendState extends State<AddFriend> {
               child: ListView.builder(
                 itemCount: user.length,
                 itemBuilder: (context, index) {
-                return Text(user[index][FireBaseManager.userName]);
+                return ListTile(
+                  leading: Container(
+                    width: 60,
+                    padding: EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.primary),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child:
+                      user[index][FireBaseManager.userPic] != null &&
+                          (!user[index][FireBaseManager.userPic]
+                              .toString()
+                              .contains("assets"))
+                          ? Image.file(
+                        File(user[index][FireBaseManager.userPic]),
+                        width: 30,
+                        fit: BoxFit.contain,
+                      )
+                          : Image.asset(
+                        user[index][FireBaseManager.userPic],
+                        width: 30,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  title: Text(
+                    user[index][FireBaseManager.userName],
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: Theme.of(context).colorScheme.tertiary,
+                    ),
+                  ),
+                  subtitle: Text(
+                    user[index][FireBaseManager.mobileNumber],
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: AppColors.textPrimaryDark,
+                      fontSize: 12,
+                    ),
+                  ),
+                  trailing: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: AppColors.backgroundLight,
+                    ),
+                    child: Center(
+                      child: Image.asset(
+                        "assets/userImages/Erin.png",
+                        color: AppColors.primary,
+                        width: 24,
+                      ),
+                    ),
+                  ),
+
+                );
               },),
             ),
           ],

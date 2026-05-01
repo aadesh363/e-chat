@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_chat/add_friend/add_friend.dart';
 import 'package:e_chat/home_page/navigationdata.dart';
+import 'package:e_chat/profile%20page/profile_page.dart';
 import 'package:e_chat/utilities/Fire_base_manager.dart';
 import 'package:e_chat/utilities/commonColors.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ChatsHomePage extends StatefulWidget {
   const ChatsHomePage({super.key});
@@ -18,10 +22,12 @@ class _ChatsHomePageState extends State<ChatsHomePage> {
 
   bool isOpened = true;
 
-  final List<Widget> screens = [
-    Center(child: chatData()),
+
+
+  late final List<Widget> screens = [
+    Center(child: chatData(context: context)),
     Center(child: Text("Groups Screen")),
-    Center(child: Text("Profile Screen")),
+   ProfilePage().profileScreen(context: context),
     Center(child: Text("More Screen")),
   ];
 
@@ -103,7 +109,6 @@ class _ChatsHomePageState extends State<ChatsHomePage> {
                     ),
                     const SizedBox(width: 10),
                     PopupMenuButton(
-
                       constraints: const BoxConstraints.tightFor(width: 330),
 
                       onOpened: () {
@@ -116,31 +121,45 @@ class _ChatsHomePageState extends State<ChatsHomePage> {
                           isOpened = !isOpened;
                         });
                       },
-                      icon: Image.asset(isOpened ? "assets/icons/plus_icon.png" : "assets/icons/cross_Icon.png",width: isOpened ?  18 : 30,),
+                      icon: Image.asset(
+                        isOpened
+                            ? "assets/icons/plus_icon.png"
+                            : "assets/icons/cross_Icon.png",
+                        width: isOpened ? 18 : 30,
+                      ),
                       offset: Offset(0, 50),
 
                       itemBuilder: (context) {
                         return <PopupMenuEntry<dynamic>>[
                           PopupMenuItem(
-
                             onTap: () {
-
-                              Navigator.of(context).push(MaterialPageRoute(builder: (context) => AddFriend(),));
-
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => AddFriend(),
+                                ),
+                              );
                             },
 
                             child: Row(
                               children: [
-                               Image.asset("assets/icons/addFreind_dark_icon.png", width: 24,height: 24,),
-                                
-                                
+                                Image.asset(
+                                  "assets/icons/addFreind_dark_icon.png",
+                                  width: 24,
+                                  height: 24,
+                                ),
+
                                 SizedBox(width: 16),
 
                                 Text(
                                   "Add Friend",
-                                  style: TextStyle(color: isDark?AppColors.backgroundLight:AppColors.backgroundDark,fontWeight: FontWeight.w500,fontSize: 18),
+                                  style: TextStyle(
+                                    color: isDark
+                                        ? AppColors.backgroundLight
+                                        : AppColors.backgroundDark,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 18,
+                                  ),
                                 ),
-
                               ],
                             ),
                           ),
@@ -148,11 +167,21 @@ class _ChatsHomePageState extends State<ChatsHomePage> {
                           PopupMenuItem(
                             child: Row(
                               children: [
-                                Image.asset("assets/icons/group_icon_inactive.png", width: 24,height: 24,),
+                                Image.asset(
+                                  "assets/icons/group_icon_inactive.png",
+                                  width: 24,
+                                  height: 24,
+                                ),
                                 SizedBox(width: 16),
                                 Text(
                                   "Create Group",
-                                  style: TextStyle(color: isDark?AppColors.backgroundLight:AppColors.backgroundDark,fontWeight: FontWeight.w500,fontSize: 18),
+                                  style: TextStyle(
+                                    color: isDark
+                                        ? AppColors.backgroundLight
+                                        : AppColors.backgroundDark,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 18,
+                                  ),
                                 ),
                               ],
                             ),
@@ -160,7 +189,6 @@ class _ChatsHomePageState extends State<ChatsHomePage> {
                         ];
                       },
                     ),
-
                   ],
                 ),
               ],
@@ -171,146 +199,131 @@ class _ChatsHomePageState extends State<ChatsHomePage> {
     );
   }
 
-  static dynamic chatData() {
-    List<UserData> userdata = [
-      UserData(
-        name: "David Wayne",
-        dateTime: "10:25",
-        image: "assets/userImages/david_pic.png",
-        msg: "Thanks a bunch! Have a great day! 😊",
-        pendingMessageCount: "5",
-      ),
-      UserData(
-        name: "Edward Davidson",
-        dateTime: "22:20  09/05",
-        image: "assets/userImages/Edward.png",
-        msg: "Great, thanks so much! 💫",
-        pendingMessageCount: "12",
-      ),
-      UserData(
-        name: "Angela Kelly",
-        dateTime: "10:45  08/05",
-        image: "assets/userImages/angela.png",
-        msg: "Appreciate it! See you soon! 🚀",
-        pendingMessageCount: "1",
-      ),
-      UserData(
-        name: "Jean Dare",
-        dateTime: "20:10  05/05",
-        image: "assets/userImages/Jean.png",
-        msg: "Your order has been successfully delivered",
-        pendingMessageCount: "",
-      ),
-      UserData(
-        name: "Cayla Rath",
-        dateTime: "11:20  05/05",
-        image: "assets/userImages/Cayla.png",
-        msg: "See you soon!",
-        pendingMessageCount: "",
-      ),
-      UserData(
-        name: "Cayla Rath",
-        dateTime: "19:35  02/05",
-        image: "assets/userImages/Erin.png",
-        msg: "I'm ready to drop off your delivery. 👍",
-        pendingMessageCount: "",
-      ),
-      UserData(
-        name: "Cayla Rath",
-        dateTime: "07:55  01/05",
-        image: "assets/userImages/Rodolfo.png",
-        msg: "Appreciate it! Hope you enjoy it!",
-        pendingMessageCount: "",
-      ),
-    ];
-    
-    return ListView.builder(
-      itemCount: userdata.length,
+  static dynamic chatData({required BuildContext context}) {
 
-      itemBuilder: (context, index) {
-        return userTile(user: userdata[index], context: context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return StreamBuilder<QuerySnapshot>(
+      stream: FireBaseManager.collection
+          .doc(globalDocID)
+          /// Current User Doc ID
+          .collection("Friends")
+          .snapshots(),
+      builder: (context, snapshot) {
+        // 1. Handle Loading State
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        // 2. Handle Errors
+        if (snapshot.hasError) {
+          return Center(child: Text("Error: ${snapshot.error}"));
+        }
+
+        // 3. Check for Data
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return const Center(child: Text("No conversations found."));
+        }
+
+        final docs = snapshot.data!.docs;
+        // 4. Build Dynamic List
+        return ListView.builder(
+          itemCount: docs.length,
+          itemBuilder: (context, index) {
+            // Extract data for the current item
+            final doc = docs[index];
+            // final data = doc.data() as Map<String, dynamic>;
+
+            return ListTile(
+              onTap: () {
+                // Add navigation to Message Page here
+              },
+              leading: ClipOval(
+                child:
+                    doc[FireBaseManager.otherUser][FireBaseManager.userPic] !=
+                        null
+                    ? Image.file(
+                        File(
+                          doc[FireBaseManager.otherUser][FireBaseManager
+                              .userPic],
+                        ),
+                        width: 42,
+                        height: 42,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Icon(Icons.account_circle, size: 42),
+                      )
+                    : const Icon(Icons.account_circle, size: 42),
+              ),
+              title: Text(
+                doc[FireBaseManager.otherUser][FireBaseManager.userName] ??
+                    "Unknown User",
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? AppColors.backgroundLight :
+                      AppColors.backgroundDark,
+                  fontSize: 16,
+                ),
+              ),
+              subtitle: Text(
+                doc[FireBaseManager.otherUser]['lastMsg'] != null &&
+                        doc[FireBaseManager.otherUser]['lastMsg'] != ""
+                    ? doc[FireBaseManager.otherUser]['lastMsg']
+                    : "No messages yet",
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textSecondaryDark,
+                  fontSize: 14, // Reduced slightly for subtitle
+                ),
+              ),
+              trailing: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min, // Prevents overflow in ListTile
+                children: [
+                  Text(
+                    doc[FireBaseManager.otherUser]['dateTime'] ?? "",
+                    style: TextStyle(
+                      color: AppColors.textSecondaryDark,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  // Dynamic Unread Badge
+                  if (doc[FireBaseManager.otherUser]['pendingMessageCount'] !=
+                          null &&
+                      doc[FireBaseManager.otherUser]['pendingMessageCount'] !=
+                          "")
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        doc[FireBaseManager.otherUser]['pendingMessageCount']
+                            .toString(),
+                        style: const TextStyle(
+                          color: AppColors.backgroundLight,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 12,
+                        ),
+                      ),
+                    )
+                  else
+                    const SizedBox(height: 18), // Maintain layout alignment
+                ],
+              ),
+            );
+          },
+        );
       },
     );
   }
 
-  static Widget userTile({
-    required UserData user,
-    required BuildContext context,
-  }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return ListTile(
-      leading: ClipOval(child: Image.asset(user.image!, width: 42, height: 42)),
-      title: Text(
-        user.name!,
-        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.w700,
-          color: isDark
-              ? AppColors.backgroundLight
-              : AppColors.backgroundDark,
-          fontSize: 16,
-        ),
-      ),
-      subtitle: Text(
-        user.msg!,
-        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.w700,
-          color: AppColors.textSecondaryDark,
-          fontSize: 16,
-        ),
-      ),
-      trailing: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Text(
-            user.dateTime.toString(),
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w700,
-              color: isDark
-                  ? AppColors.textSecondaryDark
-                  : AppColors.textSecondaryDark,
-              fontSize: 12,
-            ),
-          ),
-          SizedBox(height: 10),
-          user.pendingMessageCount.toString() != ""
-              ? Container(
-                  width: 16,
-                  height: 18,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Center(
-                    child: Text(
-                      user.pendingMessageCount.toString(),
-                      style: TextStyle(
-                        color: AppColors.backgroundLight,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                )
-              : SizedBox(),
-        ],
-      ),
-    );
-  }
-}
-
-class UserData {
-  String? name;
-  String? image;
-  String? msg;
-  String? dateTime;
-  String? pendingMessageCount;
-
-  UserData({
-    required this.name,
-    required this.msg,
-    required this.dateTime,
-    required this.image,
-    required this.pendingMessageCount,
-  });
 }

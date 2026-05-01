@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_chat/home_page/ChatsHomePage.dart';
 import 'package:e_chat/utilities/Fire_base_manager.dart';
 import 'package:e_chat/utilities/commonColors.dart';
 import 'package:e_chat/utilities/commonWidget.dart';
@@ -23,17 +24,6 @@ class _AddFriendState extends State<AddFriend> {
 
   TextEditingController phoneEditingController = TextEditingController();
 
-  Future<void> searchData() async {
-    var result = await FireBaseManager.collection
-        .orderBy(FireBaseManager.mobileNumber)
-        .startAt([searchController.text])
-        .endAt([searchController.text + '\uf8ff'])
-        .get();
-
-    user.clear();
-    user.addAll(result.docs);
-    setState(() {});
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,10 +47,17 @@ class _AddFriendState extends State<AddFriend> {
                     padding: EdgeInsets.symmetric(horizontal: 10),
                     child: Row(
                       children: [
-                        Image.asset(
-                          "assets/images/add_frnd_btn.png",
-                          width: 42,
-                          height: 42,
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) {
+                              return ChatsHomePage();
+                            },));
+                          },
+                          child: Image.asset(
+                            "assets/images/add_frnd_btn.png",
+                            width: 42,
+                            height: 42,
+                          ),
                         ),
 
                         const Spacer(),
@@ -86,7 +83,9 @@ class _AddFriendState extends State<AddFriend> {
                  onChanges: (p0) async{
                    var a = await FireBaseManager.searchUsersByNumber(controller: phoneEditingController);
                     user.clear();
-                    user.addAll(a);
+                   final newDocs = a.where((doc) => doc[FireBaseManager.docId] != globalDocID);
+
+                   user.addAll(newDocs);
                     setState(() {});
                  },
 
@@ -149,7 +148,7 @@ class _AddFriendState extends State<AddFriend> {
                   subtitle: Text(
                     user[index][FireBaseManager.mobileNumber],
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      color: AppColors.textPrimaryDark,
+                      color: AppColors.textSecondaryDark,
                       fontSize: 12,
                     ),
                   ),
@@ -158,17 +157,73 @@ class _AddFriendState extends State<AddFriend> {
                     height: 36,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      color: AppColors.backgroundLight,
+                      color: AppColors.backgroundLight.withOpacity(0.2),
                     ),
                     child: Center(
-                      child: Image.asset(
-                        "assets/userImages/Erin.png",
-                        color: AppColors.primary,
-                        width: 24,
+                      child: InkWell(
+                        onTap: () async {
+
+                          var currentUserData = await FireBaseManager.getData();
+
+                          /// To add Sub collection Friend inside current user
+
+                          FirebaseFirestore.instance.collection("Users").doc(globalDocID).collection("Friends").add(
+                              {
+                                FireBaseManager.participants : [globalDocID,user[index][FireBaseManager.docId]],
+                                /// For Current User Data
+                                FireBaseManager.currentUser :{
+                                  FireBaseManager.userName : currentUserData[FireBaseManager.userName],
+                                  FireBaseManager.docId : currentUserData[FireBaseManager.docId],
+                                  FireBaseManager.userPic : currentUserData[FireBaseManager.userPic],
+                                  FireBaseManager.lastMsg : "",
+                                  FireBaseManager.pendingMessageCount : "",
+                                  FireBaseManager.dateTime : "",
+                                },
+                                /// For The User You Add as a Friend
+                                FireBaseManager.otherUser :{
+                                   FireBaseManager.userName : user[index][FireBaseManager.userName],
+                                   FireBaseManager.docId : user[index][FireBaseManager.docId],
+                                   FireBaseManager.userPic : user[index][FireBaseManager.userPic],
+                                  FireBaseManager.lastMsg : "",
+                                  FireBaseManager.pendingMessageCount : "",
+                                  FireBaseManager.dateTime : "",
+                                },
+                                FireBaseManager.timeStamp : FieldValue.serverTimestamp(),
+
+                              });
+
+
+                          /// To add Sub collection Friend inside User you added as a Friend
+
+                          FirebaseFirestore.instance.collection("Users").doc(user[index][FireBaseManager.docId]).collection("Friends").add(
+                              {
+                                FireBaseManager.participants : [globalDocID,user[index][FireBaseManager.docId]],
+
+                                /// For Current User Data
+                                FireBaseManager.otherUser :{
+                                  FireBaseManager.userName : currentUserData[FireBaseManager.userName],
+                                  FireBaseManager.docId : currentUserData[FireBaseManager.docId],
+                                  FireBaseManager.userPic : currentUserData[FireBaseManager.userPic],
+                                },
+
+                                /// For The User You Add as a Friend
+                                FireBaseManager.currentUser :{
+                                  FireBaseManager.userName : user[index][FireBaseManager.userName],
+                                  FireBaseManager.docId : user[index][FireBaseManager.docId],
+                                  FireBaseManager.userPic : user[index][FireBaseManager.userPic],
+                                },
+                                FireBaseManager.timeStamp : FieldValue.serverTimestamp(),
+
+                              });
+                        },
+                        child: Image.asset(
+                         "assets/icons/addFrndIcon.png",
+                          color: AppColors.primary,
+                          width: 24,
+                        ),
                       ),
                     ),
                   ),
-
                 );
               },),
             ),

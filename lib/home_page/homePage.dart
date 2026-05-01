@@ -20,8 +20,7 @@ var a;
 File? img;
 @override
   void initState() {
-    // TODO: implement initState
-    super.initState();
+  super.initState();
     SharedPref.setBool(key: PrefKeys.registeredUser, value: true);
     getData();
 

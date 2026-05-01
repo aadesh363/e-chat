@@ -1,22 +1,30 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_chat/utilities/prefrence_file.dart';
 import 'package:flutter/cupertino.dart';
+String globalDocID = "";
 
 class FireBaseManager {
   static String mobileNumber = "MobileNumber";
+  static String participants = "participants";
+  static String currentUser = "currentUser";
+  static String otherUser = "otherUser";
+  static String timeStamp = "timeStamp";
   static String otp = "OTP";
   static String userName = "userName";
   static String userPic = "userPic";
   static String userPin = "userPin";
+  static String lastMsg = "lastMsg";
+  static String dateTime = "dateTime";
+  static String pendingMessageCount = "pendingMessageCount";
 
   static String docId = "docId";
-  static String? currentDocId;
 
   static var collection = FirebaseFirestore.instance.collection("Users");
 
   static void updateData({required Map<String, dynamic> data}) {
     try {
-      if (currentDocId == null) return;
-      collection.doc(currentDocId).update(data);
+      if (globalDocID == "") return;
+      collection.doc(globalDocID).update(data);
     } catch (e) {
       print("EXP in Update data method :::: $e ");
     }
@@ -32,8 +40,12 @@ class FireBaseManager {
           : collection;
 
       String uniqueId = collectionRef.doc().id;
+      globalDocID = uniqueId;
 
-      currentDocId = uniqueId;
+
+
+      SharedPref.prefs.setString("globalDocID", uniqueId);
+
 
       collectionRef.doc(uniqueId).set({
         ...data,
@@ -47,16 +59,13 @@ class FireBaseManager {
   }
 
   static Future<DocumentSnapshot<Map<String, dynamic>>> getData() {
-    if (currentDocId == null) {
-      throw Exception("docId is null");
-    }
-    return collection.doc(currentDocId).get();
+    return collection.doc(globalDocID).get();
   }
 
   static void deleteUserData() {
     try {
-      if (currentDocId == null) return;
-      collection.doc(currentDocId).delete();
+      if (globalDocID == null) return;
+      collection.doc(globalDocID).delete();
     } catch (e) {
       print("EXP in delete user data  method $e");
     }
@@ -64,8 +73,8 @@ class FireBaseManager {
 
   static void deleteFieldData({required String key}) {
     try {
-      if (currentDocId == null) return;
-      collection.doc(currentDocId).update({
+      if (globalDocID == null) return;
+      collection.doc(globalDocID).update({
         key: FieldValue.delete(),
       });
     } catch (e) {
@@ -82,8 +91,10 @@ class FireBaseManager {
           .where(key, isEqualTo: target)
           .limit(1)
           .get();
+      if(querySnapshot.docs.isNotEmpty) globalDocID = querySnapshot.docs[0][FireBaseManager.docId];
       return querySnapshot.docs.isEmpty;
-    } catch (e) {
+    }
+    catch (e) {
       print("EXP in search data method :: $e");
       final querySnapshot = await collection
           .where(key, isEqualTo: target)

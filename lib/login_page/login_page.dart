@@ -260,15 +260,15 @@ class _LoginPageState extends State<LoginPage> {
                              key: FireBaseManager.mobileNumber,
                            )))) {
 
-print(phoneEditingController.text);
-                         SharedPref.setString(
-                           key: PrefKeys.userPhone,
-                           value: phoneEditingController.text,
-                         );
-                         SharedPref.setString(
-                           key: PrefKeys.countryCode,
-                           value: dialCode,
-                         );
+                         // SharedPref.setString(
+                         //   key: PrefKeys.userPhone,
+                         //   value: phoneEditingController.text,
+                         // );
+                         // SharedPref.setString(
+                         //   key: PrefKeys.countryCode,
+                         //   value: dialCode,
+                         // );
+
                          Future.delayed(Duration(seconds: 2));
                          Navigator.push(
                            context,

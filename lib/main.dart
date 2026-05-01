@@ -1,6 +1,7 @@
 import 'package:device_preview/device_preview.dart';
 import  'package:e_chat/splashScreen/splashScreen.dart';
 import 'package:e_chat/utilities/AppTheme.dart';
+import 'package:e_chat/utilities/Fire_base_manager.dart';
 import 'package:e_chat/utilities/pref_keys.dart';
 import 'package:e_chat/utilities/prefrence_file.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -9,12 +10,15 @@ import 'package:flutter/material.dart';
 import 'firebase_options.dart';
 ValueNotifier<ThemeMode> themeNotify = ValueNotifier(ThemeMode.system);
 
+
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,);
   await SharedPref.initialize();
   String saved = SharedPref.getString(action: PrefKeys.themeKey);
-
+  globalDocID= SharedPref.prefs.getString("globalDocID")??"";
+print(globalDocID);
   if (saved == "light") {
     themeNotify.value = ThemeMode.light;
   } else if (saved == "dark") {

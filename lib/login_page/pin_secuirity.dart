@@ -127,6 +127,8 @@ class _PINSecurityState extends State<PINSecurity> {
                     requested = true;
                   });
                   var b = await FireBaseManager.getData();
+                  print("is first time ${globalDocID} ");
+                  print("is first time ${b.data()} ");
                   if (b[FireBaseManager.userPin] == pinEditingController.text) {
                     SharedPref.setBool(key: PrefKeys.logInKey, value: true);
                     CWidget.showLoader(context);

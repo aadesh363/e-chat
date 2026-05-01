@@ -112,8 +112,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     ),
                   ),
 
-                  SizedBox(height: 100),
                   Spacer(),
+
                   CWidget.commonELBTNG(
                     color: cs.surface,
                     context,

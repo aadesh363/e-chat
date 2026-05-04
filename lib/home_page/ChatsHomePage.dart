@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_chat/add_friend/add_friend.dart';
+import 'package:e_chat/chat_page/chat_page.dart';
 import 'package:e_chat/home_page/navigationdata.dart';
 import 'package:e_chat/profile%20page/profile_page.dart';
 import 'package:e_chat/utilities/Fire_base_manager.dart';
@@ -22,12 +23,10 @@ class _ChatsHomePageState extends State<ChatsHomePage> {
 
   bool isOpened = true;
 
-
-
   late final List<Widget> screens = [
     Center(child: chatData(context: context)),
     Center(child: Text("Groups Screen")),
-   ProfilePage().profileScreen(context: context),
+    ProfilePage(),
     Center(child: Text("More Screen")),
   ];
 
@@ -51,8 +50,10 @@ class _ChatsHomePageState extends State<ChatsHomePage> {
         data: Theme.of(context).copyWith(
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
+
         ),
         child: BottomNavigationBar(
+
           type: BottomNavigationBarType.fixed,
           elevation: 0,
           backgroundColor: isDark
@@ -64,7 +65,9 @@ class _ChatsHomePageState extends State<ChatsHomePage> {
           showUnselectedLabels: false,
           items: NavigationData.getNavItems(context),
           currentIndex: currentIndex,
+
           onTap: (value) {
+
             setState(() {
               currentIndex = value;
             });
@@ -200,130 +203,192 @@ class _ChatsHomePageState extends State<ChatsHomePage> {
   }
 
   static dynamic chatData({required BuildContext context}) {
-
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return StreamBuilder<QuerySnapshot>(
       stream: FireBaseManager.collection
           .doc(globalDocID)
-          /// Current User Doc ID
           .collection("Friends")
           .snapshots(),
       builder: (context, snapshot) {
-        // 1. Handle Loading State
+        // 1. Loading
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        // 2. Handle Errors
+        // 2. Error
         if (snapshot.hasError) {
           return Center(child: Text("Error: ${snapshot.error}"));
         }
 
-        // 3. Check for Data
+        // 3. Empty
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           return const Center(child: Text("No conversations found."));
         }
 
         final docs = snapshot.data!.docs;
-        // 4. Build Dynamic List
+
         return ListView.builder(
           itemCount: docs.length,
           itemBuilder: (context, index) {
-            // Extract data for the current item
-            final doc = docs[index];
-            // final data = doc.data() as Map<String, dynamic>;
+            final data = docs[index].data() as Map<String, dynamic>;
+            final otherUser = data[FireBaseManager.otherUser] ?? {};
+            final mainUser = data["currentUser"] ?? {};
 
-            return ListTile(
-              onTap: () {
-                // Add navigation to Message Page here
-              },
-              leading: ClipOval(
-                child:
-                    doc[FireBaseManager.otherUser][FireBaseManager.userPic] !=
-                        null
-                    ? Image.file(
-                        File(
-                          doc[FireBaseManager.otherUser][FireBaseManager
-                              .userPic],
-                        ),
-                        width: 42,
-                        height: 42,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Icon(Icons.account_circle, size: 42),
-                      )
-                    : const Icon(Icons.account_circle, size: 42),
-              ),
-              title: Text(
-                doc[FireBaseManager.otherUser][FireBaseManager.userName] ??
-                    "Unknown User",
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: isDark ? AppColors.backgroundLight :
-                      AppColors.backgroundDark,
-                  fontSize: 16,
-                ),
-              ),
-              subtitle: Text(
-                doc[FireBaseManager.otherUser]['lastMsg'] != null &&
-                        doc[FireBaseManager.otherUser]['lastMsg'] != ""
-                    ? doc[FireBaseManager.otherUser]['lastMsg']
-                    : "No messages yet",
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textSecondaryDark,
-                  fontSize: 14, // Reduced slightly for subtitle
-                ),
-              ),
-              trailing: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min, // Prevents overflow in ListTile
-                children: [
-                  Text(
-                    doc[FireBaseManager.otherUser]['dateTime'] ?? "",
-                    style: TextStyle(
-                      color: AppColors.textSecondaryDark,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
+            final isMe = data["senderId"] == globalDocID;
+
+
+            final name =
+                otherUser[FireBaseManager.userName] ?? "Unknown User";
+
+            final userId =
+                otherUser[FireBaseManager.docId] ?? "";
+
+            final pic =
+            otherUser[FireBaseManager.userPic];
+
+            final lastMsg = (data['lastMessage'] ?? "").toString().isNotEmpty
+                ? data['lastMessage']
+                : "No messages yet";
+
+            final ts = data['dateTime'];
+
+            String formattedTime = "";
+
+            if (ts != null && ts is Timestamp) {
+              final time = ts.toDate();
+              formattedTime =
+              "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
+            }
+
+            final count =
+                int.tryParse((data['pendingCount'] ?? 0).toString()) ?? 0;
+
+
+
+
+            return InkWell(
+              onTap: () async {
+                print("RAW TS: ${data['dateTime']}");
+
+                final snap = await FirebaseFirestore.instance
+                    .collection("Users")
+                    .doc(globalDocID)
+                    .collection("Friends")
+                    .where("friendUserId", isEqualTo: userId)
+                    .limit(1)
+                    .get();
+
+                if (snap.docs.isNotEmpty) {
+                  await FirebaseFirestore.instance
+                      .collection("Users")
+                      .doc(globalDocID)
+                      .collection("Friends")
+                      .doc(snap.docs.first.id)
+                      .update({
+                    "pendingCount": 0,
+                  });
+                }
+
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ChatScreen(
+                      otherUserId: userId,
+                      otherUserName: name,
+
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  // Dynamic Unread Badge
-                  if (doc[FireBaseManager.otherUser]['pendingMessageCount'] !=
-                          null &&
-                      doc[FireBaseManager.otherUser]['pendingMessageCount'] !=
-                          "")
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
+                );
+              },
+              child: ListTile(
+
+
+                leading: ClipOval(
+                  child: pic != null && pic.toString().startsWith("http")
+                      ? Image.network(
+                    pic,
+                    width: 42,
+                    height: 42,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                    const Icon(Icons.account_circle, size: 42),
+                  )
+                      : const Icon(Icons.account_circle, size: 42),
+                ),
+
+                title: Text(
+                  name,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: isDark
+                        ? AppColors.backgroundLight
+                        : AppColors.backgroundDark,
+                    fontSize: 16,
+                  ),
+                ),
+
+                subtitle: Text(
+                  lastMsg,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: AppColors.textSecondaryDark,
+                    fontSize: 14,
+                  ),
+                ),
+
+                trailing: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                formattedTime,
+                      style: const TextStyle(
+                        color: AppColors.textSecondaryDark,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
                       ),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        doc[FireBaseManager.otherUser]['pendingMessageCount']
-                            .toString(),
-                        style: const TextStyle(
-                          color: AppColors.backgroundLight,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 12,
+                    ),
+                    const SizedBox(height: 10),
+
+                    if (count > 0)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(4),
                         ),
-                      ),
-                    )
-                  else
-                    const SizedBox(height: 18), // Maintain layout alignment
-                ],
+                        child: Text(
+                          count.toString(),
+                          style: const TextStyle(
+                            color: AppColors.backgroundLight,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 12,
+                          ),
+                        ),
+                      )
+                    else
+                      const SizedBox(height: 18),
+                  ],
+                ),
               ),
             );
           },
         );
       },
-    );
-  }
+    );  }
+
+
+
+
+
+
+
+
+
+
 
 }

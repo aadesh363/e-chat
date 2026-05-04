@@ -23,7 +23,8 @@ class AppColors {
   static const onboardingBg = Color(0xFFC4EDFF);
  static const blueTextClr= Color(0xff3AB2E8);
 static const pinSkipBtnLight = Color(0xffECF9FF);
-
+static const msgFieldDark = Color(0xffFFFFFF33);
+  static const msgFieldLight = Color(0xffF0F0F3);
   static const border = Color(0xFF7FD7FF);
   static const error = Color(0xFFFF6347);
 

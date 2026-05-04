@@ -14,6 +14,7 @@ import 'package:e_chat/utilities/commonWidget.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../login_page/login_page.dart';
+import '../utilities/image_saver.dart';
 
 class UserInformation extends StatefulWidget {
   const UserInformation({super.key});
@@ -37,8 +38,11 @@ class _UserInformationState extends State<UserInformation> {
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
+      final savedImage =
+      await ImageSaver.saveImagePermanently(image.path);
+
       setState(() {
-        selectedImage = File(image.path);
+        selectedImage = savedImage;
       });
     }
   }
@@ -47,8 +51,11 @@ class _UserInformationState extends State<UserInformation> {
     final XFile? image = await picker.pickImage(source: ImageSource.camera);
 
     if (image != null) {
+      final savedImage =
+      await ImageSaver.saveImagePermanently(image.path);
+
       setState(() {
-        selectedImage = File(image.path);
+        selectedImage = savedImage;
       });
     }
   }
@@ -84,8 +91,6 @@ class _UserInformationState extends State<UserInformation> {
     );
   }
 
-  /////HeaderSection///////
-
   Widget headerSection(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -98,11 +103,11 @@ class _UserInformationState extends State<UserInformation> {
           child: Image.asset(
             typeComplete
                 ? (isDark
-                      ? "assets/images/on_type_rectangle_dark.png"
-                      : "assets/images/on_type_rectangle.png")
+                ? "assets/images/on_type_rectangle_dark.png"
+                : "assets/images/on_type_rectangle.png")
                 : (isDark
-                      ? "assets/images/registration+page_circle_dark.png"
-                      : "assets/images/registration+page_circle_light.png"),
+                ? "assets/images/registration+page_circle_dark.png"
+                : "assets/images/registration+page_circle_light.png"),
             key: ValueKey(typeComplete),
           ),
         ),
@@ -113,30 +118,27 @@ class _UserInformationState extends State<UserInformation> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     CWidget.commonELBTN(
                       iconReq: true,
                       imagePath: "assets/images/login_arrow_light.png",
                       onPressed: () {
-                        // print(typeNotStart);
-                        print(typeComplete);
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => LoginPage()),
+                          MaterialPageRoute(
+                              builder: (context) => LoginPage()),
                         );
                       },
                       text: "Login",
                       width: 112,
                       color: cs.surface,
                       textColor: cs.primary,
-
-                      /// Fix ///done
                     ),
-Spacer(),
+                    Spacer(),
                     Text(
                       "Register",
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      style:
+                      Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontSize: 35,
                         color: isDark
                             ? AppColors.primary
@@ -145,57 +147,63 @@ Spacer(),
                     ),
                   ],
                 ),
-
                 SizedBox(height: 24),
                 Center(
-                  child: Stack(
-                    children:[ ClipOval(
+                  child: Stack(children: [
+                    ClipOval(
                       child: Container(
                         width: 150,
                         height: 150,
-                        decoration: BoxDecoration(color: isDark?Colors.grey:AppColors.border),
+                        decoration: BoxDecoration(
+                            color:
+                            isDark ? Colors.grey : AppColors.border),
                         child: selectedImage != null
-                            ? Image.file(selectedImage!, fit:BoxFit.cover,)
+                            ? Image.file(selectedImage!,
+                            fit: BoxFit.cover)
                             : Image.asset(
-                                "assets/images/user_icon_dark.png",
-                                width: 77,
-                                height: 102,
-                              ),
+                          "assets/images/user_icon_dark.png",
+                          width: 77,
+                          height: 102,
+                        ),
                       ),
                     ),
-                    
                     Positioned(
                       right: 0,
                       top: 0,
                       child: InkWell(
-
                         onTap: () {
-                          showDialog(context: context, builder: (context) {
-                            return AlertDialog(
-                              title: Text("Pick a profile picture"),
-                              actions: [
-                                ElevatedButton(onPressed: () {
-                                  Navigator.pop(context);
-
-                                  pickFromGallery();
-                                }, child: Text("Gallery")),
-                                ElevatedButton(onPressed: () {
-                                  Navigator.pop(context);
-
-                                  pickFromCamera();
-                                }, child: Text("Camera"))
-                              ],
-                              
-                            );
-                            
-                          },);
-                          
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title:
+                                Text("Pick a profile picture"),
+                                actions: [
+                                  ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                        pickFromGallery();
+                                      },
+                                      child: Text("Gallery")),
+                                  ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                        pickFromCamera();
+                                      },
+                                      child: Text("Camera"))
+                                ],
+                              );
+                            },
+                          );
                         },
-                        child: Image.asset("assets/images/picker_icon.png",width: 45,height: 45,),
-                      )
+                        child: Image.asset(
+                          "assets/images/picker_icon.png",
+                          width: 45,
+                          height: 45,
+                        ),
+                      ),
                     )
-                    ]
-                  ),
+                  ]),
                 ),
               ],
             ),
@@ -204,8 +212,6 @@ Spacer(),
       ],
     );
   }
-
-  /////middleSection////
 
   Widget middleSection() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -229,7 +235,6 @@ Spacer(),
           if (val == null || val.isEmpty) {
             return "Enter your name";
           }
-
           return null;
         },
         context,
@@ -249,41 +254,60 @@ Spacer(),
         children: [
           InkWell(
             borderRadius: BorderRadius.circular(30),
-
             onTap: () async {
-              //SharedPref.setBool(key: PrefKeys.logInKey, value: true);
-              try{
+              try {
                 setState(() {
-                  requested =true;
+                  requested = true;
                 });
-                final isDark = Theme.of(context).brightness == Brightness.dark;
+
+                final isDark =
+                    Theme.of(context).brightness == Brightness.dark;
 
                 String defaultImage = isDark
                     ? "assets/images/user_icon_dark.png"
                     : "assets/images/user_icon_light.png";
-                String finalImagePath =
-                selectedImage != null ? selectedImage!.path : defaultImage;
-                FireBaseManager.updateData(data: {FireBaseManager.userName:nameEditingController.text});
-                selectedImage!=null? FireBaseManager.updateData(data: {FireBaseManager.userPic:finalImagePath}):FireBaseManager.updateData(data: {FireBaseManager.userPic:"assets/images/user_icon_dark.png"});
 
+                String finalImagePath = selectedImage != null
+                    ? selectedImage!.path
+                    : defaultImage;
 
-                SharedPref.setBool(key: PrefKeys.registeredUser, value: false);
+                FireBaseManager.updateData(data: {
+                  FireBaseManager.userName:
+                  nameEditingController.text
+                });
+                FireBaseManager.updateData(data: {
+                  "e-mail":
+                 nameEditingController.text+"@gmail.com"
+                });
 
-                //SharedPref.setString(key: PrefKeys.userImage, value: selectedImage!.path);
+                if (globalDocID.isNotEmpty) {
+                  SharedPref.setString(
+                    key: "globalDocID",
+                    value: globalDocID,
+                  );
+                }
+
+                FireBaseManager.updateData(data: {
+                  FireBaseManager.userPic: finalImagePath
+                });
+
+                SharedPref.setBool(
+                    key: PrefKeys.registeredUser, value: false);
+
                 await Future.delayed(Duration(seconds: 1));
 
-                Navigator.push(context, MaterialPageRoute(builder: (context) => PINSecurity(),));
-
-              }
-              catch(e){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => PINSecurity()),
+                );
+              } catch (e) {
                 print("EXP user profile:::$e");
-              }
-              finally{
+              } finally {
                 setState(() {
-                  requested =false;
+                  requested = false;
                 });
               }
-
             },
             child: Container(
               width: 58,
@@ -295,7 +319,14 @@ Spacer(),
                 shape: BoxShape.circle,
               ),
               child: Center(
-                child: requested? CircularProgressIndicator(color: Theme.of(context).colorScheme.surface,) :Image.asset("assets/images/arrow_image.png", width: 29),
+                child: requested
+                    ? CircularProgressIndicator(
+                  color:
+                  Theme.of(context).colorScheme.surface,
+                )
+                    : Image.asset(
+                    "assets/images/arrow_image.png",
+                    width: 29),
               ),
             ),
           ),

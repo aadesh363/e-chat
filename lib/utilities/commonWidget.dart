@@ -79,25 +79,48 @@ class CWidget {
     List<BoxShadow>? boxShadow,
     Gradient? gradient,
     double? height,
+        Color? bgColor,
+        bool gradiantReq=true,
 
     bool requested = false,
     bool isFirstTime = false,
+        bool isIconReq =false,
+        BorderRadiusGeometry? borderRadius,
+        String?iconImage,
   }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(30),
       child: Container(
+
         height: height ?? 60,
         width: width,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(30)),
-          gradient: gradient ?? AppColors.gradient,
+          borderRadius:borderRadius?? BorderRadius.all(Radius.circular(30)),
+
+          color: bgColor,
+          gradient: gradient ,
           boxShadow: boxShadow ?? [BoxShadow(color: AppColors.secondary)],
         ),
         child: Center(
           child: (requested && isFirstTime)
               ? CircularProgressIndicator()
-              : Text(
+
+              :isIconReq?Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(iconImage!,width: 24,height: 24,),
+              SizedBox(width: 16,),
+              Text(
+                text,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: color,
+                  fontSize: fontSize,
+                ),
+              )
+
+            ],
+          ): Text(
                   text,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: color,
@@ -388,7 +411,7 @@ class CWidget {
 
     await Future.delayed(const Duration(milliseconds: 100));
 
-    Navigator.pop(context);
+    //Navigator.pop(context);
   }
 }
 

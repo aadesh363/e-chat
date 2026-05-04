@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_chat/utilities/prefrence_file.dart';
 import 'package:flutter/cupertino.dart';
 String globalDocID = "";
+String globalFDocID = "";
+
 
 class FireBaseManager {
   static String mobileNumber = "MobileNumber";
@@ -59,6 +61,9 @@ class FireBaseManager {
   }
 
   static Future<DocumentSnapshot<Map<String, dynamic>>> getData() {
+    if (globalDocID.isEmpty) {
+      throw Exception("Doc ID is empty");
+    }
     return collection.doc(globalDocID).get();
   }
 

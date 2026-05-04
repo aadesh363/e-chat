@@ -94,8 +94,12 @@ Future<void> getData() async {
         SizedBox(height: 20),
         ElevatedButton(
           onPressed: ()  {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => ChatsHomePage(),));
-            // SharedPref.setBool(key: PrefKeys.logInKey, value: false);
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ChatsHomePage(),
+              ),
+            );            // SharedPref.setBool(key: PrefKeys.logInKey, value: false);
 
 
           },
@@ -118,7 +122,8 @@ Future<void> getData() async {
             SharedPref.setBool(key: PrefKeys.logInKey, value: false);
             SharedPref.setBool(key: PrefKeys.registeredUser, value: false);
 
-
+            SharedPref.setString(key: "globalDocID", value: "");
+            globalDocID = "";
             // print(data["User"]);
           },
           child: Text("logot"),

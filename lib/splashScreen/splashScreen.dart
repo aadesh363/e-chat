@@ -1,15 +1,14 @@
-import 'package:e_chat/home_page/homePage.dart';
-import 'package:e_chat/main.dart';
-import 'package:e_chat/login_page/pin_secuirity.dart';
-import 'package:e_chat/splashScreen/onboarding_page.dart';
-import 'package:e_chat/utilities/commonColors.dart';
-import 'package:e_chat/utilities/pref_keys.dart';
-import 'package:e_chat/utilities/prefrence_file.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../login_page/login_page.dart';
+import '../login_page/pin_secuirity.dart';
+import '../utilities/Fire_base_manager.dart';
 import '../utilities/commonWidget.dart';
+import '../utilities/pref_keys.dart';
+import '../utilities/prefrence_file.dart';
+import 'onboarding_page.dart';
 
 class Splashscreen extends StatefulWidget {
   const Splashscreen({super.key});
@@ -22,33 +21,71 @@ class _SplashscreenState extends State<Splashscreen> {
   @override
   void initState() {
     super.initState();
-// SharedPref.setBool(key: PrefKeys.logInKey, value: false);
-//     SharedPref.setBool(key: PrefKeys.registeredUser, value: false);
 
-    Future.delayed(Duration(seconds: 3)).then((value) async {
-      if (SharedPref.getBool(key: PrefKeys.logInKey)) {
-        Navigator.push(
+    Future.delayed(const Duration(seconds: 3), () async {
+      bool isLoggedIn =
+          SharedPref.getBool(key: PrefKeys.logInKey) ?? false;
+
+      String docId =
+          SharedPref.prefs.getString("globalDocID") ?? "";
+
+      if (isLoggedIn && docId.isNotEmpty) {
+        try {
+          var doc = await FirebaseFirestore.instance
+              .collection("Users")
+              .doc(docId)
+              .get();
+
+          if (doc.exists) {
+            globalDocID = docId;
+
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => PINSecurity()),
+            );
+          } else {
+            SharedPref.setBool(key: PrefKeys.logInKey, value: false);
+            SharedPref.setString(key: "globalDocID", value: "");
+
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => OnboardingPage()),
+            );
+          }
+        } catch (e) {
+          SharedPref.setBool(key: PrefKeys.logInKey, value: false);
+          SharedPref.setString(key: "globalDocID", value: "");
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => OnboardingPage()),
+          );
+        }
+      } else if (isLoggedIn && docId.isEmpty) {
+        SharedPref.setBool(key: PrefKeys.logInKey, value: false);
+        SharedPref.setString(key: "globalDocID", value: "");
+
+        Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => PINSecurity()),
+          MaterialPageRoute(builder: (context) => OnboardingPage()),
         );
       } else {
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => OnboardingPage()),
         );
       }
-      //Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage(),));
     });
   }
 
+  @override
   Widget build(BuildContext context) {
-    //  bool isLight = SharedPref.getBool(key: "isLight");
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     String themeNow = SharedPref.getString(action: "theme");
     final cs = Theme.of(context).colorScheme;
 
-    return  Scaffold(
+    return Scaffold(
       body: SafeArea(
         child: Center(
           child: Column(
@@ -101,6 +138,6 @@ class _SplashscreenState extends State<Splashscreen> {
           ),
         ),
       ),
-    );;
+    );
   }
 }

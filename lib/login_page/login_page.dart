@@ -268,7 +268,12 @@ class _LoginPageState extends State<LoginPage> {
                          //   key: PrefKeys.countryCode,
                          //   value: dialCode,
                          // );
-
+                         if (globalDocID.isNotEmpty) {
+                           SharedPref.setString(
+                             key: "globalDocID",
+                             value: globalDocID,
+                           );
+                         }
                          Future.delayed(Duration(seconds: 2));
                          Navigator.push(
                            context,

@@ -115,6 +115,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   Spacer(),
 
                   CWidget.commonELBTNG(
+                    gradient: AppColors.gradient,
                     color: cs.surface,
                     context,
                     onTap: () {

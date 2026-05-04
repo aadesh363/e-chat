@@ -9,4 +9,5 @@ class PrefKeys {
   static String userPin = "userPin";
   static String docID ="docId";
   static String registeredUser = "registeredUser";
+  static String globalDocIDs="globalDocID";
 }

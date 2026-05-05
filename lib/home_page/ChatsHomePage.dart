@@ -241,7 +241,7 @@ class _ChatsHomePageState extends State<ChatsHomePage> {
             final name =
                 otherUser[FireBaseManager.userName] ?? "Unknown User";
 
-            final userId =
+            final otherUserID =
                 otherUser[FireBaseManager.docId] ?? "";
 
             final pic =
@@ -275,7 +275,7 @@ class _ChatsHomePageState extends State<ChatsHomePage> {
                     .collection("Users")
                     .doc(globalDocID)
                     .collection("Friends")
-                    .where("friendUserId", isEqualTo: userId)
+                    .where("friendUserId", isEqualTo: otherUserID)
                     .limit(1)
                     .get();
 
@@ -295,7 +295,7 @@ class _ChatsHomePageState extends State<ChatsHomePage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => ChatScreen(
-                      otherUserId: userId,
+                      otherUserId: otherUserID,
                       otherUserName: name,
 
                     ),

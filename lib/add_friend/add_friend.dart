@@ -19,13 +19,24 @@ class _AddFriendState extends State<AddFriend> {
   final user = [];
   bool typeStart = false;
 
-
+  String dialCode = "+91";
+  var userData;
 
 
   TextEditingController phoneEditingController = TextEditingController();
 
 
   @override
+  Future<void> getData() async {
+    var data = await FireBaseManager.getData();
+    setState(() {
+
+
+
+      dialCode = userData?[FireBaseManager.dialCOde] ?? "+91";
+
+    });
+  }
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
@@ -81,7 +92,7 @@ class _AddFriendState extends State<AddFriend> {
                 padding: const EdgeInsets.symmetric(vertical: 16,horizontal: 24),
                 child: CWidget.commonTextField(
                  onChanges: (p0) async{
-                   var a = await FireBaseManager.searchUsersByNumber(controller: phoneEditingController);
+                   var a = await FireBaseManager.searchUsersByNumber(controller: phoneEditingController,dialCode:dialCode );
                     user.clear();
                    final friendSnap = await FirebaseFirestore.instance
                        .collection("Users")
@@ -95,7 +106,8 @@ class _AddFriendState extends State<AddFriend> {
 
                    final newDocs = a.where((doc) =>
                    doc[FireBaseManager.docId] != globalDocID &&
-                       !friendIds.contains(doc[FireBaseManager.docId]));
+                       !friendIds.contains(doc[FireBaseManager.docId])
+                   );
                    user.addAll(newDocs);
                     setState(() {});
                  },
@@ -106,7 +118,7 @@ class _AddFriendState extends State<AddFriend> {
 
                   controller: phoneEditingController,
                   onCountryChanged: (p0) {},
-                  dialCode: "+91",
+                  dialCode: dialCode,
                   dialogBackgroundColor: isDark
                       ? AppColors.backgroundDark
                       : AppColors.backgroundLight,

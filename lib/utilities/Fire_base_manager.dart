@@ -17,7 +17,12 @@ class FireBaseManager {
   static String userPin = "userPin";
   static String lastMsg = "lastMsg";
   static String dateTime = "dateTime";
+  static String dialCOde = "dialcode";
+  static String birthDate = "birthDate";
+  static String email= "e-mail";
+  static String gender= "gender";
   static String pendingMessageCount = "pendingMessageCount";
+
 
   static String docId = "docId";
 
@@ -111,12 +116,36 @@ class FireBaseManager {
 
   static Future<List<QueryDocumentSnapshot<Object?>>> searchUsersByNumber({
     required TextEditingController controller,
+    required String dialCode,
   }) async {
+    String searchText = "$dialCode ${controller.text.trim()}";
+
     QuerySnapshot userNumber = await collection
         .orderBy(FireBaseManager.mobileNumber)
-        .startAt([controller.text])
-        .endAt([controller.text + "\uf8ff"])
+        .startAt([searchText])
+        .endAt([searchText + "\uf8ff"])
         .get();
+print(searchText);
     return userNumber.docs;
   }
+
+
+  static Future<List<QueryDocumentSnapshot<Object?>>> searchUserByName({
+    required TextEditingController controller,
+
+  }) async {
+    String searchText = "${controller.text.trim()}";
+
+    QuerySnapshot userNumber = await collection
+        .orderBy(FireBaseManager.userName)
+        .startAt([searchText])
+        .endAt([searchText + "\uf8ff"])
+        .get();
+    print(searchText);
+    return userNumber.docs;
+  }
+
+
+
+
 }

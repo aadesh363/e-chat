@@ -16,6 +16,9 @@ class AppTheme {
         onSurface: AppColors.textPrimaryLight,
         error: AppColors.error,
       ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: Colors.white
+      ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: AppColors.backgroundDark,
         selectedItemColor: AppColors.primary,
@@ -49,6 +52,9 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadiusGeometry.circular(30),
         ),
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+          backgroundColor: Color(0xff4A4B62)
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: AppColors.backgroundLight,

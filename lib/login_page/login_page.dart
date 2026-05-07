@@ -256,7 +256,7 @@ class _LoginPageState extends State<LoginPage> {
                        });
                        if (_formKey.currentState!.validate() &&
                            !(await (FireBaseManager.searchData(
-                             target: phoneEditingController.text,
+                             target:dialCode+" "+phoneEditingController.text,
                              key: FireBaseManager.mobileNumber,
                            )))) {
 

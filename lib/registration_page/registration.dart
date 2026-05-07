@@ -269,7 +269,9 @@ class _RegistrationState extends State<Registration> {
                             FireBaseManager.addCollection(
                               data: {
                                 FireBaseManager.mobileNumber:
-                                phoneEditingController.text,
+                                dialCode+" "+phoneEditingController.text,
+                                FireBaseManager.dialCOde: dialCode,
+                                "number":phoneEditingController.text,
                               },
                             );
 

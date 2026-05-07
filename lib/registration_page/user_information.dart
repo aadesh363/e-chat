@@ -273,7 +273,9 @@ class _UserInformationState extends State<UserInformation> {
 
                 FireBaseManager.updateData(data: {
                   FireBaseManager.userName:
-                  nameEditingController.text
+                  nameEditingController.text,
+                  FireBaseManager.gender:"Male",
+                  FireBaseManager.birthDate:DateTime.now()
                 });
                 FireBaseManager.updateData(data: {
                   "e-mail":

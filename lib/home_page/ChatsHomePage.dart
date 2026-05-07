@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_chat/add_friend/add_friend.dart';
+import 'package:e_chat/add_group/add_group.dart';
 import 'package:e_chat/chat_page/chat_page.dart';
 import 'package:e_chat/home_page/navigationdata.dart';
 import 'package:e_chat/profile%20page/profile_page.dart';
@@ -168,6 +169,9 @@ class _ChatsHomePageState extends State<ChatsHomePage> {
                           ),
 
                           PopupMenuItem(
+                            onTap: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => AddGroup(),));
+                            },
                             child: Row(
                               children: [
                                 Image.asset(

@@ -171,13 +171,13 @@ class CWidget {
     );
   }
 
-  static Future<dynamic?> toast({required String msg}) {
+  static Future<dynamic?> toast({required String msg,Color? backgroundColor}) {
     return Fluttertoast.showToast(
       msg: msg,
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.TOP,
       timeInSecForIosWeb: 2,
-      backgroundColor: Colors.red,
+      backgroundColor:backgroundColor?? Colors.red,
       textColor: AppColors.backgroundLight,
       fontSize: 16.0,
     );
@@ -194,6 +194,7 @@ class CWidget {
     required String dialCode,
         required Color dialogBackgroundColor,
         bool isBorder = false,
+        String initialSelection =""
   }) {
     return TextFormField(
       validator: validator,
@@ -258,7 +259,7 @@ class CWidget {
                     });
                   },
 
-                  initialSelection: 'IN',
+                  initialSelection: dialCode,
 
                   pickerStyle: PickerStyle.bottomSheet,
                   showCountryOnly: false,
@@ -413,7 +414,28 @@ class CWidget {
 
     //Navigator.pop(context);
   }
+
+  static Future<void> showLoader2(BuildContext context) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          content: Center(child: CircularProgressIndicator()),
+        );
+      },
+    );
+
+    await Future.delayed(const Duration(seconds:1));
+    Navigator.pop(context);
+
+
+  }
 }
+
+
 
 class Data {
   String title;

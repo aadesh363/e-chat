@@ -3,12 +3,12 @@ import 'Fire_base_manager.dart';
 
 class GroupManager {
   static final groupCollection =
-  FirebaseFirestore.instance.collection("Groups");
+  FirebaseFirestore.instance.collection("Users").doc().collection("Groups");
 
   static Future<String> createGroup({
     required String groupName,
     required List<String> members,
-    String groupPic = "",
+    required List<String> groupPic,
   }) async {
     String groupId = groupCollection.doc().id;
 
@@ -19,7 +19,8 @@ class GroupManager {
       "members": members,
       "adminId": globalDocID,
       "createdAt": FieldValue.serverTimestamp(),
-      "lastMessage": "",
+      "lastMessage": "Welcome to our New Group $groupName",
+      "pendingCount":1,
     });
 
     return groupId;

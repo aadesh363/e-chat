@@ -11,6 +11,9 @@ import 'package:e_chat/utilities/commonColors.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../group_page/group_page.dart';
+int currentIndex = 0;
+
 class ChatsHomePage extends StatefulWidget {
   const ChatsHomePage({super.key});
 
@@ -19,14 +22,13 @@ class ChatsHomePage extends StatefulWidget {
 }
 
 class _ChatsHomePageState extends State<ChatsHomePage> {
-  int currentIndex = 0;
   String image = "assets/icons/cross_Icon.png";
 
   bool isOpened = true;
 
   late final List<Widget> screens = [
     Center(child: chatData(context: context)),
-    Center(child: Text("Groups Screen")),
+    GroupPage(),
     ProfilePage(),
     Center(child: Text("More Screen")),
   ];

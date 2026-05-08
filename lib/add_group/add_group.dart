@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_chat/group_page/group_page.dart';
 import 'package:e_chat/utilities/Fire_base_manager.dart';
 import 'package:e_chat/utilities/commonWidget.dart';
 import 'package:flutter/material.dart';
@@ -17,11 +18,13 @@ class AddGroup extends StatefulWidget {
 
 class _AddGroupState extends State<AddGroup> {
   TextEditingController nameEditingController = TextEditingController();
+  List oldParticipants = [];
+  List names = [];
 
   TextEditingController searchEditingController = TextEditingController();
   bool isChecked = false;
   List<bool> boolSet = [];
-  List<dynamic> participants = [];
+  List<Map<String, dynamic>> participants = <Map<String, dynamic>>[];
   var users = [];
 
   @override
@@ -151,6 +154,7 @@ class _AddGroupState extends State<AddGroup> {
 
                           context: context,
                           builder: (context) {
+                            oldParticipants = List.from(participants);
                             return StatefulBuilder(
                               builder: (context, setState) {
                                 return Padding(
@@ -227,6 +231,19 @@ class _AddGroupState extends State<AddGroup> {
                                                           friendIds.contains(
                                                             doc[FireBaseManager
                                                                 .docId],
+                                                          ) &&
+                                                          !participants.any(
+                                                            (e) =>
+                                                                e["docId"] ==
+                                                                doc[FireBaseManager
+                                                                    .docId],
+                                                          ) &&
+                                                          !users.any(
+                                                            (e) =>
+                                                                e[FireBaseManager
+                                                                    .docId] ==
+                                                                doc[FireBaseManager
+                                                                    .docId],
                                                           ),
                                                     );
                                                     users.addAll(newDocs);
@@ -330,28 +347,57 @@ class _AddGroupState extends State<AddGroup> {
                                                                   .mobileNumber],
 
                                                           onTap: () {
-                                                            setState(() {
-                                                              boolSet[index] =
-                                                                  !boolSet[index];
+                                                            final alreadyExists =
+                                                                participants.any(
+                                                                  (e) =>
+                                                                      e["docId"] ==
+                                                                      listItem[FireBaseManager
+                                                                          .docId],
+                                                                );
 
-                                                              if (boolSet[index]) {
-                                                                participants.add(
-                                                                  listItem[FireBaseManager
-                                                                      .docId],
+                                                            setState(() {
+                                                              if (alreadyExists) {
+                                                                participants.removeWhere(
+                                                                  (e) =>
+                                                                      e["docId"] ==
+                                                                      listItem[FireBaseManager
+                                                                          .docId],
                                                                 );
                                                               } else {
-                                                                participants.remove(
-                                                                  listItem[FireBaseManager
-                                                                      .userName],
-                                                                );
+                                                                participants.add({
+                                                                  "docId":
+                                                                      listItem[FireBaseManager
+                                                                          .docId],
+                                                                  "mobileNo":
+                                                                      listItem[FireBaseManager
+                                                                          .mobileNumber],
+                                                                  "userPic":
+                                                                      listItem[FireBaseManager
+                                                                          .userPic],
+
+                                                                  "boolValue":
+                                                                      true,
+
+                                                                  "userName":
+                                                                      listItem[FireBaseManager
+                                                                          .userName],
+                                                                });
                                                               }
                                                             });
                                                           },
+
                                                           boolValue:
-                                                              boolSet[index],
+                                                              participants.any(
+                                                                (e) =>
+                                                                    e["docId"] ==
+                                                                    listItem[FireBaseManager
+                                                                        .docId],
+                                                              ),
+
                                                           userImage:
                                                               listItem[FireBaseManager
                                                                   .userPic],
+
                                                           userName:
                                                               listItem[FireBaseManager
                                                                   .userName],
@@ -394,26 +440,39 @@ class _AddGroupState extends State<AddGroup> {
                                                     context,
                                                     boxShadow: [],
                                                     onTap: () {
-                                                      print(participants);
-                                                      // FireBaseManager.updateData(data: {
-                                                      //   FireBaseManager.userName:nameEditingController.text,
-                                                      //   FireBaseManager.mobileNumber:dialCode+" "+phoneEditingController.text,
-                                                      //   FireBaseManager.gender:selectedValue,
-                                                      //   FireBaseManager.birthDate:selectedDate,
-                                                      //   FireBaseManager.email:emailEditingController.text,
-                                                      //   FireBaseManager.dialCOde:dialCode,
-                                                      //   "number":phoneEditingController.text
-                                                      // });
-                                                      //
-                                                      CWidget.toast(msg: "Added",backgroundColor: AppColors.primary);
+                                                      bool isSame =
+                                                          oldParticipants
+                                                                  .length ==
+                                                              participants
+                                                                  .length &&
+                                                          oldParticipants.every(
+                                                            (
+                                                              e,
+                                                            ) => participants.any(
+                                                              (p) =>
+                                                                  p["docId"] ==
+                                                                  e["docId"],
+                                                            ),
+                                                          );
+
+                                                      if (isSame) {
+                                                        CWidget.toast(
+                                                          msg:
+                                                              "No changes made",
+                                                          backgroundColor:
+                                                              Colors.red,
+                                                        );
+
+                                                        return;
+                                                      }
+
+                                                      CWidget.toast(
+                                                        msg: "Added",
+                                                        backgroundColor:
+                                                            AppColors.primary,
+                                                      );
+
                                                       Navigator.pop(context);
-
-
-
-                                                      //
-                                                      //
-                                                      //
-                                                      //
                                                     },
                                                     text: "Add",
                                                     width: 160,
@@ -437,7 +496,9 @@ class _AddGroupState extends State<AddGroup> {
                               },
                             );
                           },
-                        );
+                        ).then((value) {
+                          setState(() {});
+                        });
                       },
                       child: Container(
                         height: 56,
@@ -468,18 +529,105 @@ class _AddGroupState extends State<AddGroup> {
                     ),
                     Expanded(
                       child: ListView.builder(
-
                         itemCount: participants.length,
+
                         itemBuilder: (context, index) {
+                          final participant = participants[index];
+                          return ListTile(
+                            title: Row(
+                              children: [
+                                ClipOval(
+                                  child: Image.asset(
+                                    participant["userPic"],
+                                    width: 42,
+                                    height: 42,
+                                  ),
+                                ),
+                                SizedBox(width: 5),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      participant["userName"],
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
 
+                                    Text(
+                                      participant["mobileNo"],
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
 
-                       return Text(participants[index]);
-                      },),
+                            trailing: InkWell(
+                              onTap: () {
+                                setState(() {
+                                  participants.removeAt(index);
+                                });
+                              },
+                              child: SizedBox(
+                                child: isDark
+                                    ? Image.asset(
+                                        "assets/icons/darkCross.png",
+                                        width: 36,
+                                        height: 36,
+                                      )
+                                    : Image.asset(
+                                        "assets/icons/lightCross.png",
+                                        width: 36,
+                                        height: 36,
+                                      ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                     Spacer(),
+
                     CWidget.commonELBTNG(
                       context,
-                      onTap: () {},
+                      onTap: () async {
+                        var adminSnap = await FirebaseFirestore.instance
+                            .collection("Users")
+                            .doc(globalDocID)
+                            .get();
+
+                        var adminData = adminSnap.data();
+                        print(participants);
+                        //  print("participants");
+
+                        GroupManager.createGroup(
+                          groupName: nameEditingController.text,
+                          members: participants
+                              .map<String>((e) => e["docId"].toString())
+                              .toList(),
+                          groupPic: [
+                            adminData?["userPic"]
+                          ,
+                            ...participants.map<String>(
+                                  (e) => e["userPic"].toString(),
+                            ),
+                          ],
+                        );
+
+                        CWidget.showLoader2(context);
+                        await Future.delayed(Duration(seconds: 2));
+
+                        Navigator.of(context).pop();
+                        Navigator.of(context).pop();
+                        setState(() {
+                          currentIndex=1;
+
+                        });
+                      },
                       text: "Create Group",
                       width: 345,
                       fontSize: 20,
@@ -559,57 +707,4 @@ class _AddGroupState extends State<AddGroup> {
       ],
     );
   }
-
-  //
-  // Widget bottonBtn() {
-  //   final isDark = Theme.of(context).brightness == Brightness.dark;
-  //   return Row(
-  //     mainAxisAlignment: MainAxisAlignment.center,
-  //     children: [
-  //       CWidget.commonELBTN(
-  //         onPressed: () {
-  //           print("lll");
-  //           Navigator.pop(context);
-  //         },
-  //         text: "Cancel`",
-  //         width: 160,
-  //         color: AppColors.pinSkipBtnLight,
-  //         textColor: AppColors.blueTextClr,
-  //       ),
-  //       Spacer(),
-  //       CWidget.commonELBTNG(
-  //         context,
-  //         boxShadow: [],
-  //         onTap: ()  {
-  //
-  //           print(participants);
-  //           // FireBaseManager.updateData(data: {
-  //           //   FireBaseManager.userName:nameEditingController.text,
-  //           //   FireBaseManager.mobileNumber:dialCode+" "+phoneEditingController.text,
-  //           //   FireBaseManager.gender:selectedValue,
-  //           //   FireBaseManager.birthDate:selectedDate,
-  //           //   FireBaseManager.email:emailEditingController.text,
-  //           //   FireBaseManager.dialCOde:dialCode,
-  //           //   "number":phoneEditingController.text
-  //           // });
-  //           //
-  //           //
-  //           // Navigator.pop(context);
-  //           // CWidget.showLoader2(context);
-  //           //
-  //           //
-  //           //
-  //           //
-  //         },
-  //         text: "Add",
-  //         width: 160,
-  //         fontSize: 18,
-  //         gradient: AppColors.gradient,
-  //
-  //         color: AppColors.backgroundLight,
-  //         height: 60,
-  //       ),
-  //     ],
-  //   );
-  // }
 }

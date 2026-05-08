@@ -278,6 +278,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_image_overlap:
+    dependency: "direct main"
+    description:
+      name: flutter_image_overlap
+      sha256: de40aebb95eafef1a71c8028bcacd034c3f8dcbfcb831a686a0ab89b4f42be37
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.8"
   flutter_lints:
     dependency: "direct dev"
     description:

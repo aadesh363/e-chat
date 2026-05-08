@@ -428,8 +428,8 @@ class CWidget {
       },
     );
 
-    await Future.delayed(const Duration(seconds:1));
-    Navigator.pop(context);
+    await Future.delayed(const Duration(seconds:2));
+    //Navigator.pop(context);
 
 
   }

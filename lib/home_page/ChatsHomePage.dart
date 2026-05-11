@@ -276,6 +276,16 @@ class _ChatsHomePageState extends State<ChatsHomePage> {
             return InkWell(
               onTap: () async {
                 print("RAW TS: ${data['dateTime']}");
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ChatScreen(
+                      otherUserId: otherUserID,
+                      otherUserName: name,
+
+                    ),
+                  ),
+                );
 
                 final snap = await FirebaseFirestore.instance
                     .collection("Users")
@@ -297,16 +307,6 @@ class _ChatsHomePageState extends State<ChatsHomePage> {
                 }
 
 
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ChatScreen(
-                      otherUserId: otherUserID,
-                      otherUserName: name,
-
-                    ),
-                  ),
-                );
               },
               child: ListTile(
 

@@ -51,23 +51,33 @@ class _OtpFileState extends State<OtpFile> {
     });
 
   }
+  late int otp;
 
   int generateFourDigit() {
-    // Generates a number from 1000 to 9999
-    int a = 1000 + Random().nextInt(9000);
-    // Generates a number from 1000 to 9999
-    FireBaseManager.updateData(data: {FireBaseManager.otp:a.toString()});
-    return a;
-  }
 
-  late int otp = generateFourDigit();
+    otp = 1000 + Random().nextInt(9000);
+
+    FireBaseManager.updateData(
+      data: {
+        FireBaseManager.otp: otp.toString(),
+      },
+    );
+
+    return otp;
+  }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
+    generateFourDigit();
+
     startTimer();
+
+    CWidget.toast(
+      msg: otp.toString(),
+    );
     print(otp);
   }
 
@@ -211,9 +221,16 @@ class _OtpFileState extends State<OtpFile> {
               InkWell(
                 onTap: timeLeft == 0
                     ? () {
-                        startTimer();
-                        print(generateFourDigit());
-                      }
+
+                  startTimer();
+
+                  generateFourDigit();
+
+                  CWidget.toast(
+                    msg: otp.toString(),
+                  );
+
+                }
                     : null,
                 child: Text(
                   "Resend Code",

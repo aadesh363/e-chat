@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_chat/Group_chat_page/group_chat_page.dart';
 import 'package:e_chat/group_page/group_page.dart';
 import 'package:e_chat/utilities/Fire_base_manager.dart';
 import 'package:e_chat/utilities/commonWidget.dart';
@@ -71,6 +72,7 @@ class _AddGroupState extends State<AddGroup> {
                       children: [
                         InkWell(
                           onTap: () {
+
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -541,6 +543,18 @@ class _AddGroupState extends State<AddGroup> {
                                     participant["userPic"],
                                     width: 42,
                                     height: 42,
+                                    fit: BoxFit.cover,
+
+                                    errorBuilder: (context, error, stackTrace) {
+
+                                      return Image.asset(
+                                        "assets/images/user_icon_light.png",
+                                        width: 42,
+                                        height: 42,
+                                        fit: BoxFit.cover,
+                                      );
+
+                                    },
                                   ),
                                 ),
                                 SizedBox(width: 5),
@@ -595,6 +609,15 @@ class _AddGroupState extends State<AddGroup> {
                     CWidget.commonELBTNG(
                       context,
                       onTap: () async {
+                        if(nameEditingController.text.trim()==""){
+                          CWidget.toast(msg: "add group name first");
+                          return;
+                        }
+                        if(participants.isEmpty){
+                          CWidget.toast(msg: "add participants first");
+                        return;
+                        }
+
                         var adminSnap = await FirebaseFirestore.instance
                             .collection("Users")
                             .doc(globalDocID)
@@ -603,8 +626,10 @@ class _AddGroupState extends State<AddGroup> {
                         var adminData = adminSnap.data();
                         print(participants);
                         //  print("participants");
+                        String groupID= FirebaseFirestore.instance.collection("temprory").doc().id;
 
                         GroupManager.createGroup(
+                          userId: globalDocID,
                           groupName: nameEditingController.text,
                           members: participants
                               .map<String>((e) => e["docId"].toString())
@@ -616,9 +641,20 @@ class _AddGroupState extends State<AddGroup> {
                                   (e) => e["userPic"].toString(),
                             ),
                           ],
+                            gID: groupID,
                         );
-
-                        CWidget.showLoader2(context);
+                          for (var ids in participants){
+                            GroupManager.createGroup(gID: groupID,groupName: nameEditingController.text, members: participants
+                                .map<String>((e) => e["docId"].toString())
+                                .toList(), groupPic: [
+                              adminData?["userPic"]
+                              ,
+                              ...participants.map<String>(
+                                    (e) => e["userPic"].toString(),
+                              ),
+                            ],userId: ids["docId"]);
+                          }
+                        CWidget.showLoader(context);
                         await Future.delayed(Duration(seconds: 2));
 
                         Navigator.of(context).pop();

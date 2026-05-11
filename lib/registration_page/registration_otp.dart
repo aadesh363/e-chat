@@ -29,10 +29,11 @@ class _RegistrationOtpState extends State<RegistrationOtp> {
   TextEditingController otpEditingController = TextEditingController();
 
   void startTimer() {
-    generateFourDigit();
+
     setState(() {
       timeLeft = 30;
     });
+
     Timer.periodic(Duration(seconds: 1), (timer) {
 
       if(timeLeft > 0){
@@ -51,24 +52,31 @@ class _RegistrationOtpState extends State<RegistrationOtp> {
 
   }
 
-  int generateFourDigit() {
-     int a = 1000 + Random().nextInt(9000);
-    // Generates a number from 1000 to 9999
-     FireBaseManager.updateData(data: {FireBaseManager.otp:a.toString()});
-    return a;
+  late int otp;
 
+  void generateFourDigit() {
+
+    otp = 1000 + Random().nextInt(9000);
+
+    FireBaseManager.updateData(
+      data: {
+        FireBaseManager.otp: otp.toString(),
+      },
+    );
   }
-
-  late int otp = generateFourDigit();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
-    startTimer();
     generateFourDigit();
-    CWidget.toast(msg: generateFourDigit().toString());
+
+    startTimer();
+
+    CWidget.toast(
+      msg: otp.toString(),
+    );
 
     print(otp);
   }
@@ -223,9 +231,12 @@ Spacer(),                    Text(
                 onTap: timeLeft == 0
                     ? () {
                   startTimer();
-                  print(generateFourDigit());
 
-                  CWidget.toast(msg: generateFourDigit().toString());
+                  generateFourDigit();
+
+                  CWidget.toast(
+                    msg: otp.toString(),
+                  );
                 }
                     : null,
                 child: Text(

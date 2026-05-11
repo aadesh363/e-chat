@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 
 import '../utilities/Fire_base_manager.dart';
+
 int pendingCount = 0;
 
 class ChatScreen extends StatefulWidget {
@@ -36,15 +37,15 @@ class _ChatScreenState extends State<ChatScreen> {
     getdata();
     // resetUnread();
   }
+
   var a;
+
   Future<void> getdata() async {
     final currentSnap = await FirebaseFirestore.instance
         .collection("Users")
         .doc(currentUserId)
         .collection("Friends")
         .where("friendUserId", isEqualTo: otherUserId)
-
-
         .limit(1)
         .get();
     setState(() {
@@ -111,9 +112,7 @@ class _ChatScreenState extends State<ChatScreen> {
   //   msgController.clear();
   // }
 
-
   Future<void> sendMessage() async {
-
     final text = msgController.text.trim();
     if (text.isEmpty) return;
 
@@ -126,10 +125,10 @@ class _ChatScreenState extends State<ChatScreen> {
         .doc(chatId)
         .collection("messages")
         .add({
-      "senderId": currentUserId,
-      "message": text,
-      "timeStamp": FieldValue.serverTimestamp(),
-    });
+          "senderId": currentUserId,
+          "message": text,
+          "timeStamp": FieldValue.serverTimestamp(),
+        });
 
     final currentSnap = await FirebaseFirestore.instance
         .collection("Users")
@@ -151,17 +150,17 @@ class _ChatScreenState extends State<ChatScreen> {
 
     final currentDocId = currentSnap.docs.first.id;
     final otherDocId = otherSnap.docs.first.id;
-      var times= FieldValue.serverTimestamp();
+    var times = FieldValue.serverTimestamp();
     await FirebaseFirestore.instance
         .collection("Users")
         .doc(currentUserId)
         .collection("Friends")
         .doc(currentDocId)
         .update({
-      "lastMessage": text,
-      "pendingCount": 0,
-      "dateTime": FieldValue.serverTimestamp(),
-    });
+          "lastMessage": text,
+          "pendingCount": 0,
+          "dateTime": FieldValue.serverTimestamp(),
+        });
 
     await FirebaseFirestore.instance
         .collection("Users")
@@ -169,12 +168,10 @@ class _ChatScreenState extends State<ChatScreen> {
         .collection("Friends")
         .doc(otherDocId)
         .update({
-      "lastMessage": text,
-      "pendingCount": FieldValue.increment(1),
-      "dateTime":FieldValue.serverTimestamp()
-
-    });
-
+          "lastMessage": text,
+          "pendingCount": FieldValue.increment(1),
+          "dateTime": FieldValue.serverTimestamp(),
+        });
   }
 
   @override
@@ -186,9 +183,7 @@ class _ChatScreenState extends State<ChatScreen> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: const Color(0xffF0F0F3),
-        appBar: AppBar(title: Text(widget.otherUserName),
-
-        ),
+        appBar: AppBar(title: Text(widget.otherUserName)),
         body: Column(
           children: [
             Expanded(
@@ -210,81 +205,82 @@ class _ChatScreenState extends State<ChatScreen> {
 
                   final docs = snapshot.data!.docs;
 
-
-
                   return Column(
                     children: [
-
                       Expanded(
                         child: ListView.builder(
-                        reverse: true,
-                        padding: const EdgeInsets.all(12),
-                        itemCount: docs.length,
-                        itemBuilder: (context, index) {
-                          final data = docs[index].data() as Map<String, dynamic>;
+                          reverse: true,
+                          padding: const EdgeInsets.all(12),
+                          itemCount: docs.length,
+                          itemBuilder: (context, index) {
+                            final data =
+                                docs[index].data() as Map<String, dynamic>;
 
-                          final isMe = data["senderId"] == currentUserId;
+                            final isMe = data["senderId"] == currentUserId;
 
-                          final time = data["timeStamp"] != null
-                              ? (data["timeStamp"] as Timestamp).toDate()
-                              : null;
+                            final time = data["timeStamp"] != null
+                                ? (data["timeStamp"] as Timestamp).toDate()
+                                : null;
 
-                          return Align(
-                            alignment: isMe
-                                ? Alignment.centerRight
-                                : Alignment.centerLeft,
-                            child: Container(
-                              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                              margin: const EdgeInsets.symmetric(vertical: 5),
-                              constraints: BoxConstraints(
-                                maxWidth: MediaQuery.of(context).size.width * 0.8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: isMe
-                                    ? AppColors.secondary
-                                    : AppColors.backgroundLight,
-                                borderRadius: BorderRadius.only(
-                                  topLeft: const Radius.circular(16),
-                                  topRight: const Radius.circular(16),
-                                  bottomLeft: const Radius.circular(16),
-                                  bottomRight: const Radius.circular(4),
+                            return Align(
+                              alignment: isMe
+                                  ? Alignment.centerRight
+                                  : Alignment.centerLeft,
+                              child: Container(
+                                padding: const EdgeInsets.fromLTRB(
+                                  16,
+                                  12,
+                                  16,
+                                  12,
+                                ),
+                                margin: const EdgeInsets.symmetric(vertical: 5),
+                                constraints: BoxConstraints(
+                                  maxWidth:
+                                      MediaQuery.of(context).size.width * 0.8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isMe
+                                      ? AppColors.secondary
+                                      : AppColors.backgroundLight,
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: const Radius.circular(16),
+                                    topRight: const Radius.circular(16),
+                                    bottomLeft: const Radius.circular(16),
+                                    bottomRight: const Radius.circular(4),
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: isMe
+                                      ? CrossAxisAlignment.end
+                                      : CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      (data["message"] ?? "").toString(),
+                                      style: TextStyle(
+                                        color: isMe
+                                            ? AppColors.backgroundLight
+                                            : AppColors.backgroundDark,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      time != null
+                                          ? "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}"
+                                          : "",
+                                      style: TextStyle(
+                                        color: isMe
+                                            ? AppColors.backgroundLight
+                                            : AppColors.backgroundDark,
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              child: Column(
-                                crossAxisAlignment: isMe
-                                    ? CrossAxisAlignment.end
-                                    : CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    (data["message"] ?? "").toString(),
-                                    style: TextStyle(
-                                      color: isMe
-                                          ? AppColors.backgroundLight
-                                          : AppColors.backgroundDark,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    time != null
-                                        ? "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}"
-                                        : "",
-                                    style: TextStyle(
-                                      color: isMe
-                                          ? AppColors.backgroundLight
-                                          : AppColors.backgroundDark,
-                                      fontSize: 11,
-                                    ),
-                                  ),
-
-
-                                ],
-                              ),
-                            ),
-                          );
-
-                        },
-                                            ),
+                            );
+                          },
+                        ),
                       ),
                       StreamBuilder<bool>(
                         stream: getTypingStatus(
@@ -299,7 +295,6 @@ class _ChatScreenState extends State<ChatScreen> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-
                                 Text(
                                   isTyping ? "typing..." : "",
                                   style: const TextStyle(
@@ -312,8 +307,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           );
                         },
                       ),
-
-                    ]
+                    ],
                   );
                 },
               ),
@@ -325,6 +319,7 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
+
   Stream<bool> getTypingStatus({
     required String currentUserId,
     required String otherUserId,
@@ -336,11 +331,11 @@ class _ChatScreenState extends State<ChatScreen> {
         .where("friendUserId", isEqualTo: currentUserId)
         .snapshots()
         .map((snapshot) {
-      if (snapshot.docs.isEmpty) return false;
+          if (snapshot.docs.isEmpty) return false;
 
-      final data = snapshot.docs.first.data();
-      return data['typing'] ?? false;
-    });
+          final data = snapshot.docs.first.data();
+          return data['typing'] ?? false;
+        });
   }
 
   Widget msgArea() {
@@ -366,11 +361,9 @@ class _ChatScreenState extends State<ChatScreen> {
             const SizedBox(width: 10),
             Expanded(
               child: TextFormField(
-
                 onChanged: (value) async {
                   print("WRITE → to: $otherUserId, from: $currentUserId");
                   print(value.isNotEmpty);
-
 
                   final snap = await FirebaseFirestore.instance
                       .collection("Users")
@@ -386,11 +379,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         .doc(currentUserId)
                         .collection("Friends")
                         .doc(snap.docs.first.id)
-                        .update({
-                      "typing": value.isNotEmpty ,
-                    });
+                        .update({"typing": value.isNotEmpty});
                   }
-
                 },
                 onTapOutside: (event) async {
                   final snap = await FirebaseFirestore.instance
@@ -407,11 +397,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         .doc(currentUserId)
                         .collection("Friends")
                         .doc(snap.docs.first.id)
-                        .update({
-                      "typing":false,
-                    });
+                        .update({"typing": false});
                   }
-},
+                },
                 controller: msgController,
                 style: Theme.of(context).textTheme.titleMedium,
                 textInputAction: TextInputAction.send,
@@ -450,14 +438,9 @@ class _ChatScreenState extends State<ChatScreen> {
                       .doc(currentUserId)
                       .collection("Friends")
                       .doc(snap.docs.first.id)
-                      .update({
-                    "typing":false,
-                  });
+                      .update({"typing": false});
                 }
                 sendMessage();
-
-
-
               },
               borderRadius: BorderRadius.circular(50),
               child: Container(
@@ -474,6 +457,7 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
+
   Future<String?> getFriendDocId() async {
     final snapshot = await FirebaseFirestore.instance
         .collection("Users")

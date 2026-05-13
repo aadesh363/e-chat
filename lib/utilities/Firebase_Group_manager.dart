@@ -21,6 +21,10 @@ class GroupManager {
   }) async {
 
     //String groupId = groupCollection(userId).doc().id;
+    if (!members.contains(globalDocID)) {
+      members.add(globalDocID);
+    }
+
 
     await groupCollection(userId).doc(gID).set({
 

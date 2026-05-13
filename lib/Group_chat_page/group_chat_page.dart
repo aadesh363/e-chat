@@ -1,10 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_chat/Group_chat_page/groupEdit_Page/group_edit.dart';
 import 'package:e_chat/utilities/Fire_base_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_overlap/flutter_image_overlap.dart';
 
+import '../add_friend/add_friend.dart';
+import '../add_group/add_group.dart';
 import '../utilities/commonColors.dart';
 String myName ="";
+
 class GroupChatPage extends StatefulWidget {
   final String groupID;
 
@@ -16,7 +20,9 @@ class GroupChatPage extends StatefulWidget {
 
 class _GroupChatPageState extends State<GroupChatPage> {
   TextEditingController msgController = TextEditingController();
-@override
+  bool isOpened = true;
+late String gID= widget.groupID;
+  @override
   void initState() {
     // TODO: implement initState
 
@@ -40,6 +46,7 @@ class _GroupChatPageState extends State<GroupChatPage> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
 
     return GestureDetector(
       onTap: () {
@@ -95,9 +102,61 @@ class _GroupChatPageState extends State<GroupChatPage> {
                         ),
                   title: Text("Message"),
                   actions: [
-                    isDark
-                        ? Image.asset("assets/icons/three_dot_dark.png")
-                        : Image.asset("assets/icons/three_dot_light.png"),
+                    PopupMenuButton(
+                      constraints: const BoxConstraints.tightFor(width: 200),
+
+                      onOpened: () {
+                        setState(() {
+                          isOpened = !isOpened;
+                        });
+                      },
+                      onCanceled: () {
+                        setState(() {
+                          isOpened = !isOpened;
+                        });
+                      },
+                      icon: Image.asset(
+                       isDark?"assets/icons/three_dot_dark.png":"assets/icons/three_dot_light.png",
+                        width: 42,
+                        height: 42,
+                      ),
+                      offset: Offset(0, 50),
+
+                      itemBuilder: (context) {
+                        return <PopupMenuEntry<dynamic>>[
+                          PopupMenuItem(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => GroupEdit(adminID: data["adminId"].toString(),groupID: gID,),
+                                ),
+                              );
+                            },
+
+                            child: Row(
+                              children: [
+                                Icon(Icons.edit_note_rounded),
+
+                                SizedBox(width: 16),
+
+                                Text(
+                                  "Edit group",
+                                  style: TextStyle(
+                                    color: isDark
+                                        ? AppColors.backgroundLight
+                                        : AppColors.backgroundDark,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                        ];
+                      },
+                    ),
+
                   ],
                 ),
                 ListTile(
@@ -200,8 +259,11 @@ class _GroupChatPageState extends State<GroupChatPage> {
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: isDark ? Color(0xff2C2D3A) : Color(0xffF0F0F3),
-                    ),
+                      color: data["colorBG"] != null
+                          ? Color(data["colorBG"])
+                          : (isDark
+                          ? const Color(0xff2C2D3A)
+                          : const Color(0xffF0F0F3)),                    ),
                     child: StreamBuilder<QuerySnapshot>(
                       stream: FirebaseFirestore.instance
                           .collection("Users")
@@ -399,47 +461,42 @@ class _GroupChatPageState extends State<GroupChatPage> {
                         Expanded(
                           child: TextFormField(
                             onChanged: (value) async {
-                              bool typingStatus=value.trim().isNotEmpty;
-                              var snap = await FirebaseFirestore.instance
-                                  .collection("Users")
-                                  .doc(globalDocID)
-                                  .get();
 
-                              var name = snap.data();
+                              bool typingStatus = value.trim().isNotEmpty;
 
-                              print(name?["userName"]);
                               print("My name is $myName");
-                              for(var i in data["members"])
-                                {
-                                  FirebaseFirestore.instance.collection("Users").doc(i).collection("Groups").doc(widget.groupID).update(
-                                      {
 
-                                        "typingUser":typingStatus?FieldValue.arrayUnion([name?["userName"]]):FieldValue.arrayRemove([name?["userName"]]),
-                                      });
-                                }
-                              FirebaseFirestore.instance.collection("Users").doc(globalDocID).collection("Groups").doc(widget.groupID).update(
-                                {"typingUser":typingStatus?FieldValue.arrayUnion([name?["userName"]]):FieldValue.arrayRemove([name?["userName"]]),}
-                              );
+                              for (var i in data["members"]) {
 
-                            },
-                            onTapOutside: (event) async {
-                              var snap = await FirebaseFirestore.instance
-                                  .collection("Users")
-                                  .doc(globalDocID)
-                                  .get();
+                                await FirebaseFirestore.instance
+                                    .collection("Users")
+                                    .doc(i)
+                                    .collection("Groups")
+                                    .doc(widget.groupID)
+                                    .update({
 
-                              var name = snap.data();
-                              for(var i in data["members"])
-                              {
-                                FirebaseFirestore.instance.collection("Users").doc(i).collection("Groups").doc(widget.groupID).update(
-                                    {
-
-                                      "typingUser":FieldValue.arrayRemove([name?["userName"]]),
-                                    });
+                                  "typingUser": typingStatus
+                                      ? FieldValue.arrayUnion([myName])
+                                      : FieldValue.arrayRemove([myName]),
+                                });
                               }
-                              FirebaseFirestore.instance.collection("Users").doc(globalDocID).collection("Groups").doc(widget.groupID).update(
-                                  {"typingUser":FieldValue.arrayRemove([name?["userName"]]),}
-                              );
+                            },
+
+                            onTapOutside: (event) async {
+
+                              for (var i in data["members"]) {
+
+                                await FirebaseFirestore.instance
+                                    .collection("Users")
+                                    .doc(i)
+                                    .collection("Groups")
+                                    .doc(widget.groupID)
+                                    .update({
+
+                                  "typingUser":
+                                  FieldValue.arrayRemove([myName]),
+                                });
+                              }
                             },
                             controller: msgController,
                             style: Theme.of(context).textTheme.titleMedium,
@@ -479,12 +536,7 @@ class _GroupChatPageState extends State<GroupChatPage> {
                                 await sendOtherMessage(docsID: i, text: text);
                               }
                             }
-                            if (data["adminId"] != globalDocID) {
-                              await sendOtherMessage(
-                                docsID: data["adminId"],
-                                text: text,
-                              );
-                            }
+
                           },
                           borderRadius: BorderRadius.circular(50),
                           child: Container(

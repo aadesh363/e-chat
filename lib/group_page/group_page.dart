@@ -23,7 +23,7 @@ class _GroupPageState extends State<GroupPage> {
       body: StreamBuilder(
         stream: FirebaseFirestore.instance.collection("Users").doc(globalDocID)
             .collection("Groups")
-            .where(Filter.or(Filter("members", arrayContains: globalDocID), Filter("adminId", isEqualTo: globalDocID)))
+            .where("members", arrayContains: globalDocID)
         
             .snapshots(),
         builder: (context, snapshot) {

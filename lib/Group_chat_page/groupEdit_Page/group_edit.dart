@@ -80,22 +80,20 @@ class _GroupEditState extends State<GroupEdit> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme
-        .of(context)
-        .brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     bool adminAccess = widget.adminID == globalDocID;
     return Scaffold(
       appBar: AppBar(
         actionsPadding: EdgeInsetsGeometry.symmetric(horizontal: 10),
         leading: isDark
             ? InkWell(
-          onTap: () => Navigator.pop(context),
-          child: Image.asset("assets/icons/appbar_btn_dark.png"),
-        )
+                onTap: () => Navigator.pop(context),
+                child: Image.asset("assets/icons/appbar_btn_dark.png"),
+              )
             : InkWell(
-          onTap: () => Navigator.pop(context),
-          child: Image.asset("assets/icons/appbar_btn_light.png"),
-        ),
+                onTap: () => Navigator.pop(context),
+                child: Image.asset("assets/icons/appbar_btn_light.png"),
+              ),
 
         actions: [
           Row(
@@ -233,10 +231,7 @@ class _GroupEditState extends State<GroupEdit> {
                   final remainingCount = pics.length - visibleImages.length;
 
                   return SizedBox(
-                    height: MediaQuery
-                        .of(context)
-                        .size
-                        .height * 0.75,
+                    height: MediaQuery.of(context).size.height * 0.75,
 
                     child: Column(
                       children: [
@@ -246,15 +241,12 @@ class _GroupEditState extends State<GroupEdit> {
                             Text(
                               data["groupName"],
 
-                              style: Theme
-                                  .of(context)
-                                  .textTheme
-                                  .titleSmall
+                              style: Theme.of(context).textTheme.titleSmall
                                   ?.copyWith(
-                                color: isDark ? Colors.white : Colors.black,
-                                fontSize: 22,
-                                fontWeight: FontWeight.w600,
-                              ),
+                                    color: isDark ? Colors.white : Colors.black,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                             ),
 
                             const SizedBox(width: 17),
@@ -270,8 +262,7 @@ class _GroupEditState extends State<GroupEdit> {
                                     return AlertDialog(
                                       title: const Text("Enter new group name"),
 
-                                      titleTextStyle: Theme
-                                          .of(context)
+                                      titleTextStyle: Theme.of(context)
                                           .textTheme
                                           .bodyLarge
                                           ?.copyWith(fontSize: 16),
@@ -280,12 +271,9 @@ class _GroupEditState extends State<GroupEdit> {
 
                                       actions: [
                                         TextFormField(
-                                          style: Theme
-                                              .of(
+                                          style: Theme.of(
                                             context,
-                                          )
-                                              .textTheme
-                                              .titleMedium,
+                                          ).textTheme.titleMedium,
 
                                           controller: groupNameController,
                                         ),
@@ -319,10 +307,10 @@ class _GroupEditState extends State<GroupEdit> {
                                                       .collection("Groups")
                                                       .doc(widget.groupID)
                                                       .update({
-                                                    "groupName":
-                                                    groupNameController
-                                                        .text,
-                                                  });
+                                                        "groupName":
+                                                            groupNameController
+                                                                .text,
+                                                      });
                                                 }
 
                                                 Navigator.pop(context);
@@ -356,15 +344,12 @@ class _GroupEditState extends State<GroupEdit> {
                         Text(
                           "$count members",
 
-                          style: Theme
-                              .of(context)
-                              .textTheme
-                              .titleSmall
+                          style: Theme.of(context).textTheme.titleSmall
                               ?.copyWith(
-                            color: isDark ? Colors.white : Colors.black,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w400,
-                          ),
+                                color: isDark ? Colors.white : Colors.black,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w400,
+                              ),
                         ),
 
                         const SizedBox(height: 32),
@@ -383,12 +368,9 @@ class _GroupEditState extends State<GroupEdit> {
                                   builder: (context, setState) {
                                     return Padding(
                                       padding: EdgeInsets.only(
-                                        bottom: MediaQuery
-                                            .of(
+                                        bottom: MediaQuery.of(
                                           context,
-                                        )
-                                            .viewInsets
-                                            .bottom,
+                                        ).viewInsets.bottom,
                                       ),
 
                                       child: SingleChildScrollView(
@@ -404,7 +386,7 @@ class _GroupEditState extends State<GroupEdit> {
                                                 color: Colors.black12,
 
                                                 borderRadius:
-                                                BorderRadius.circular(11),
+                                                    BorderRadius.circular(11),
                                               ),
                                             ),
 
@@ -413,12 +395,9 @@ class _GroupEditState extends State<GroupEdit> {
                                             Text(
                                               "All members of Group",
 
-                                              style: Theme
-                                                  .of(
+                                              style: Theme.of(
                                                 context,
-                                              )
-                                                  .textTheme
-                                                  .titleMedium,
+                                              ).textTheme.titleMedium,
                                             ),
 
                                             const SizedBox(height: 16),
@@ -431,13 +410,13 @@ class _GroupEditState extends State<GroupEdit> {
 
                                                 itemBuilder: (context, index) {
                                                   final user =
-                                                  membersData[index];
+                                                      membersData[index];
 
                                                   return memberData(
                                                     userName: user["userName"],
 
                                                     mobileNumber:
-                                                    user["MobileNumber"],
+                                                        user["MobileNumber"],
 
                                                     onTap: () {
                                                       showDialog(
@@ -449,16 +428,15 @@ class _GroupEditState extends State<GroupEdit> {
                                                             ),
 
                                                             titleTextStyle:
-                                                            Theme
-                                                                .of(
-                                                              context,
-                                                            )
-                                                                .textTheme
-                                                                .bodyLarge
-                                                                ?.copyWith(
-                                                              fontSize:
-                                                              18,
-                                                            ),
+                                                                Theme.of(
+                                                                      context,
+                                                                    )
+                                                                    .textTheme
+                                                                    .bodyLarge
+                                                                    ?.copyWith(
+                                                                      fontSize:
+                                                                          18,
+                                                                    ),
 
                                                             alignment: Alignment
                                                                 .center,
@@ -477,110 +455,97 @@ class _GroupEditState extends State<GroupEdit> {
 
                                                               Row(
                                                                 children: [
-                                                                  CWidget
-                                                                      .commonELBTNG(
+                                                                  CWidget.commonELBTNG(
                                                                     context,
                                                                     gradient:
-                                                                    AppColors
-                                                                        .gradient,
+                                                                        AppColors
+                                                                            .gradient,
                                                                     onTap: () {
-                                                                      Navigator
-                                                                          .pop(
+                                                                      Navigator.pop(
                                                                         context,
                                                                       );
                                                                     },
 
                                                                     text:
-                                                                    "Cancel",
+                                                                        "Cancel",
 
                                                                     width: 85,
                                                                     fontSize:
-                                                                    12,
+                                                                        12,
                                                                   ),
                                                                   Spacer(),
 
-                                                                  CWidget
-                                                                      .commonELBTNG(
+                                                                  CWidget.commonELBTNG(
                                                                     context,
                                                                     gradient:
-                                                                    AppColors
-                                                                        .gradient,
+                                                                        AppColors
+                                                                            .gradient,
                                                                     onTap: () async {
                                                                       final removedUserId =
-                                                                      user["docId"];
+                                                                          user["docId"];
                                                                       await FirebaseFirestore
                                                                           .instance
                                                                           .collection(
-                                                                        "Users",
-                                                                      )
+                                                                            "Users",
+                                                                          )
                                                                           .doc(
-                                                                        removedUserId,
-                                                                      )
+                                                                            removedUserId,
+                                                                          )
                                                                           .collection(
-                                                                        "Groups",
-                                                                      )
+                                                                            "Groups",
+                                                                          )
                                                                           .doc(
-                                                                        widget
-                                                                            .groupID,
-                                                                      )
+                                                                            widget.groupID,
+                                                                          )
                                                                           .delete();
                                                                       for (var i
-                                                                      in members) {
+                                                                          in members) {
                                                                         if (i ==
                                                                             removedUserId)
                                                                           continue;
                                                                         await FirebaseFirestore
                                                                             .instance
                                                                             .collection(
-                                                                          "Users",
-                                                                        )
+                                                                              "Users",
+                                                                            )
                                                                             .doc(
-                                                                          i,
-                                                                        )
+                                                                              i,
+                                                                            )
                                                                             .collection(
-                                                                          "Groups",
-                                                                        )
+                                                                              "Groups",
+                                                                            )
                                                                             .doc(
-                                                                          widget
-                                                                              .groupID,
-                                                                        )
-                                                                            .update(
-                                                                            {
-                                                                              "members": FieldValue
-                                                                                  .arrayRemove(
+                                                                              widget.groupID,
+                                                                            )
+                                                                            .update({
+                                                                              "members": FieldValue.arrayRemove(
                                                                                 [
                                                                                   removedUserId,
                                                                                 ],
                                                                               ),
                                                                             });
                                                                       }
-                                                                      membersData
-                                                                          .removeWhere(
-                                                                            (
-                                                                            e) =>
-                                                                        e["docId"] ==
+                                                                      membersData.removeWhere(
+                                                                        (e) =>
+                                                                            e["docId"] ==
                                                                             removedUserId,
                                                                       );
                                                                       setState(
-                                                                            () {},
+                                                                        () {},
                                                                       );
-                                                                      CWidget
-                                                                          .showLoader(
+                                                                      CWidget.showLoader(
                                                                         context,
                                                                       );
-                                                                      await Future
-                                                                          .delayed(
+                                                                      await Future.delayed(
                                                                         Duration(
                                                                           seconds:
-                                                                          2,
+                                                                              2,
                                                                         ),
                                                                       );
-                                                                      Navigator
-                                                                          .pop(
+                                                                      Navigator.pop(
                                                                         context,
                                                                       );
-                                                                      Navigator
-                                                                          .pop(
+                                                                      Navigator.pop(
                                                                         context,
                                                                       );
                                                                     },
@@ -589,7 +554,7 @@ class _GroupEditState extends State<GroupEdit> {
 
                                                                     width: 85,
                                                                     fontSize:
-                                                                    12,
+                                                                        12,
                                                                   ),
                                                                 ],
                                                               ),
@@ -608,7 +573,7 @@ class _GroupEditState extends State<GroupEdit> {
                                                         : "assets/icons/lightCross.png",
 
                                                     admin:
-                                                    widget.adminID ==
+                                                        widget.adminID ==
                                                         globalDocID,
                                                   );
                                                 },
@@ -617,14 +582,14 @@ class _GroupEditState extends State<GroupEdit> {
 
                                             Padding(
                                               padding:
-                                              const EdgeInsets.symmetric(
-                                                horizontal: 20,
-                                                vertical: 10,
-                                              ),
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 20,
+                                                    vertical: 10,
+                                                  ),
 
                                               child: Row(
                                                 mainAxisAlignment:
-                                                MainAxisAlignment.center,
+                                                    MainAxisAlignment.center,
 
                                                 children: [
                                                   Row(
@@ -649,208 +614,223 @@ class _GroupEditState extends State<GroupEdit> {
                                                       SizedBox(width: 20),
                                                       adminAccess
                                                           ? CWidget.commonELBTN(
+                                                              onPressed: () async {
+                                                                addMembers
+                                                                    .clear();
 
-                                                      onPressed: () async {
-                                                        addMembers.clear();
+                                                                final usersSnap =
+                                                                    await FirebaseFirestore
+                                                                        .instance
+                                                                        .collection(
+                                                                          "Users",
+                                                                        )
+                                                                        .get();
 
-                                                        final usersSnap = await FirebaseFirestore.instance
-                                                            .collection("Users")
-                                                            .get();
+                                                                for (var doc
+                                                                    in usersSnap
+                                                                        .docs) {
+                                                                  final user =
+                                                                      doc.data();
 
-                                                        for (var doc in usersSnap.docs) {
+                                                                  if (doc.id !=
+                                                                          globalDocID &&
+                                                                      !members
+                                                                          .contains(
+                                                                            doc.id,
+                                                                          )) {
+                                                                    addMembers.add({
+                                                                      ...user,
+                                                                      "docId":
+                                                                          doc.id,
+                                                                    });
+                                                                  }
+                                                                }
 
-                                                          final user = doc.data();
+                                                                showModalBottomSheet(
+                                                                  isScrollControlled:
+                                                                      true,
 
-                                                          if (
+                                                                  context:
+                                                                      context,
 
-                                                          doc.id != globalDocID &&
+                                                                  builder: (context) {
+                                                                    return StatefulBuilder(
+                                                                      builder:
+                                                                          (
+                                                                            context,
+                                                                            setState,
+                                                                          ) {
+                                                                            return Padding(
+                                                                              padding: EdgeInsets.only(
+                                                                                bottom: MediaQuery.of(
+                                                                                  context,
+                                                                                ).viewInsets.bottom,
+                                                                              ),
 
-                                                              !members.contains(doc.id)
+                                                                              child: Column(
+                                                                                mainAxisSize: MainAxisSize.min,
 
-                                                          ) {
+                                                                                children: [
+                                                                                  const SizedBox(
+                                                                                    height: 10,
+                                                                                  ),
 
-                                                            addMembers.add({
+                                                                                  Container(
+                                                                                    width: 61,
+                                                                                    height: 4,
 
-                                                              ...user,
-                                                              "docId": doc.id,
-                                                            });
-                                                          }
-                                                        }
+                                                                                    decoration: BoxDecoration(
+                                                                                      color: Colors.black12,
 
-                                                        showModalBottomSheet(
+                                                                                      borderRadius: BorderRadius.circular(
+                                                                                        11,
+                                                                                      ),
+                                                                                    ),
+                                                                                  ),
 
-                                                          isScrollControlled: true,
+                                                                                  const SizedBox(
+                                                                                    height: 16,
+                                                                                  ),
 
-                                                          context: context,
+                                                                                  Text(
+                                                                                    "Add Members",
 
-                                                          builder: (context) {
+                                                                                    style: Theme.of(
+                                                                                      context,
+                                                                                    ).textTheme.titleMedium,
+                                                                                  ),
 
-                                                            return StatefulBuilder(
+                                                                                  const SizedBox(
+                                                                                    height: 16,
+                                                                                  ),
 
-                                                              builder: (context, setState) {
+                                                                                  SizedBox(
+                                                                                    height: 400,
 
-                                                                return Padding(
+                                                                                    child: ListView.builder(
+                                                                                      itemCount: addMembers.length,
 
-                                                                  padding: EdgeInsets.only(
+                                                                                      itemBuilder:
+                                                                                          (
+                                                                                            context,
+                                                                                            index,
+                                                                                          ) {
+                                                                                            final user = addMembers[index];
 
-                                                                    bottom:
-                                                                    MediaQuery.of(context)
-                                                                        .viewInsets
-                                                                        .bottom,
-                                                                  ),
+                                                                                            return memberData(
+                                                                                              userName: user["userName"],
 
-                                                                  child: Column(
+                                                                                              mobileNumber: user["MobileNumber"],
 
-                                                                    mainAxisSize:
-                                                                    MainAxisSize.min,
+                                                                                              userImage: user["userPic"],
 
-                                                                    children: [
+                                                                                              boolValue: true,
 
-                                                                      const SizedBox(height: 10),
+                                                                                              crossImage: "assets/icons/plus_icon_chat_light.png",
 
-                                                                      Container(
-                                                                        width: 61,
-                                                                        height: 4,
+                                                                                              admin: true,
 
-                                                                        decoration: BoxDecoration(
-                                                                          color: Colors.black12,
+                                                                                              onTap: () async {
+                                                                                                final newUserId = user["docId"];
 
-                                                                          borderRadius:
-                                                                          BorderRadius.circular(11),
-                                                                        ),
-                                                                      ),
+                                                                                                final updatedMembers = [
+                                                                                                  ...members,
+                                                                                                  newUserId,
+                                                                                                ];
 
-                                                                      const SizedBox(height: 16),
+                                                                                                // add group to new user
+                                                                                                await FirebaseFirestore.instance
+                                                                                                    .collection(
+                                                                                                      "Users",
+                                                                                                    )
+                                                                                                    .doc(
+                                                                                                      newUserId,
+                                                                                                    )
+                                                                                                    .collection(
+                                                                                                      "Groups",
+                                                                                                    )
+                                                                                                    .doc(
+                                                                                                      widget.groupID,
+                                                                                                    )
+                                                                                                    .set(
+                                                                                                      {
+                                                                                                        ...data,
 
-                                                                      Text(
-                                                                        "Add Members",
+                                                                                                        "members": updatedMembers,
+                                                                                                      },
+                                                                                                    );
 
-                                                                        style: Theme.of(context)
-                                                                            .textTheme
-                                                                            .titleMedium,
-                                                                      ),
+                                                                                                // update old users
+                                                                                                for (var i in members) {
+                                                                                                  await FirebaseFirestore.instance
+                                                                                                      .collection(
+                                                                                                        "Users",
+                                                                                                      )
+                                                                                                      .doc(
+                                                                                                        i,
+                                                                                                      )
+                                                                                                      .collection(
+                                                                                                        "Groups",
+                                                                                                      )
+                                                                                                      .doc(
+                                                                                                        widget.groupID,
+                                                                                                      )
+                                                                                                      .update(
+                                                                                                        {
+                                                                                                          "members": updatedMembers,
+                                                                                                        },
+                                                                                                      );
+                                                                                                }
 
-                                                                      const SizedBox(height: 16),
+                                                                                                // instant remove from UI
+                                                                                                addMembers.removeAt(
+                                                                                                  index,
+                                                                                                );
 
-                                                                      SizedBox(
+                                                                                                setState(
+                                                                                                  () {},
+                                                                                                );
 
-                                                                        height: 400,
+                                                                                                CWidget.toast(
+                                                                                                  msg: "Member Added",
 
-                                                                        child: ListView.builder(
+                                                                                                  backgroundColor: AppColors.primary,
+                                                                                                );
+                                                                                                Navigator.pop(
+                                                                                                  context,
+                                                                                                );
+                                                                                                Navigator.pop(
+                                                                                                  context,
+                                                                                                );
+                                                                                              },
+                                                                                            );
+                                                                                          },
+                                                                                    ),
+                                                                                  ),
 
-                                                                          itemCount:
-                                                                          addMembers.length,
-
-                                                                          itemBuilder:
-                                                                              (context, index) {
-
-                                                                            final user =
-                                                                            addMembers[index];
-
-                                                                            return memberData(
-
-                                                                              userName:
-                                                                              user["userName"],
-
-                                                                              mobileNumber:
-                                                                              user["MobileNumber"],
-
-                                                                              userImage:
-                                                                              user["userPic"],
-
-                                                                              boolValue: true,
-
-                                                                              crossImage:"assets/icons/plus_icon_chat_light.png"
-                                                                           ,
-
-                                                                              admin: true,
-
-                                                                              onTap: () async {
-
-                                                                                final newUserId =
-                                                                                user["docId"];
-
-                                                                                final updatedMembers = [
-
-                                                                                  ...members,
-                                                                                  newUserId,
-                                                                                ];
-
-                                                                                // add group to new user
-                                                                                await FirebaseFirestore.instance
-                                                                                    .collection("Users")
-                                                                                    .doc(newUserId)
-                                                                                    .collection("Groups")
-                                                                                    .doc(widget.groupID)
-                                                                                    .set({
-
-                                                                                  ...data,
-
-                                                                                  "members":
-                                                                                  updatedMembers,
-                                                                                });
-
-                                                                                // update old users
-                                                                                for (var i in members) {
-
-                                                                                  await FirebaseFirestore
-                                                                                      .instance
-                                                                                      .collection("Users")
-                                                                                      .doc(i)
-                                                                                      .collection("Groups")
-                                                                                      .doc(widget.groupID)
-                                                                                      .update({
-
-                                                                                    "members":
-                                                                                    updatedMembers,
-                                                                                  });
-                                                                                }
-
-                                                                                // instant remove from UI
-                                                                                addMembers.removeAt(index);
-
-                                                                                setState(() {});
-
-                                                                                CWidget.toast(
-
-                                                                                  msg: "Member Added",
-
-                                                                                  backgroundColor:
-                                                                                  AppColors.primary,
-                                                                                );
-                                                                                Navigator.pop(context);
-                                                                                Navigator.pop(context);
-                                                                              },
+                                                                                  const SizedBox(
+                                                                                    height: 20,
+                                                                                  ),
+                                                                                ],
+                                                                              ),
                                                                             );
                                                                           },
-                                                                        ),
-                                                                      ),
-
-                                                                      const SizedBox(height: 20),
-                                                                    ],
-                                                                  ),
+                                                                    );
+                                                                  },
                                                                 );
                                                               },
-                                                            );
-                                                          },
-                                                        );
 
-                                                      }
+                                                              text:
+                                                                  "add members",
 
+                                                              width: 160,
 
+                                                              color: AppColors
+                                                                  .pinSkipBtnLight,
 
-                                                      ,
-
-                                                        text: "add members",
-
-                                                        width: 160,
-
-                                                        color: AppColors
-                                                            .pinSkipBtnLight,
-
-                                                        textColor: AppColors
-                                                            .blueTextClr,
-                                                      )
+                                                              textColor: AppColors
+                                                                  .blueTextClr,
+                                                            )
                                                           : SizedBox(),
                                                     ],
                                                   ),
@@ -891,7 +871,7 @@ class _GroupEditState extends State<GroupEdit> {
                                       OverlappingImages(
                                         images: List<ImageProvider>.from(
                                           visibleImages.map(
-                                                (e) => AssetImage(e),
+                                            (e) => AssetImage(e),
                                           ),
                                         ),
 
@@ -1062,9 +1042,7 @@ class _GroupEditState extends State<GroupEdit> {
     required String crossImage,
     required bool admin,
   }) {
-    final cs = Theme
-        .of(context)
-        .colorScheme;
+    final cs = Theme.of(context).colorScheme;
 
     return Column(
       children: [
@@ -1101,14 +1079,14 @@ class _GroupEditState extends State<GroupEdit> {
                   onTap: onTap,
                   child: admin
                       ? Container(
-                    height: 24,
-                    width: 24,
-                    decoration: BoxDecoration(
-                      // border: Border.all(color: cs.secondary.withOpacity(0.5)),
-                      borderRadius: BorderRadius.all(Radius.circular(6)),
-                    ),
-                    child: boolValue ? Image.asset(crossImage) : null,
-                  )
+                          height: 24,
+                          width: 24,
+                          decoration: BoxDecoration(
+                            // border: Border.all(color: cs.secondary.withOpacity(0.5)),
+                            borderRadius: BorderRadius.all(Radius.circular(6)),
+                          ),
+                          child: boolValue ? Image.asset(crossImage) : null,
+                        )
                       : SizedBox(),
                 ),
               ],
@@ -1120,21 +1098,21 @@ class _GroupEditState extends State<GroupEdit> {
     );
   }
 
-// Future<void> getGroupName() async {
-//
-//   final snap = await FirebaseFirestore.instance
-//       .collection("Users")
-//       .doc(globalDocID)
-//       .collection("Groups")
-//       .doc(widget.groupID)
-//       .get();
-//
-//   final data = snap.data();
-//
-//   if (data != null) {
-//
-//     groupNameController.text =
-//         data["groupName"] ?? "";
-//   }
-// }
+  // Future<void> getGroupName() async {
+  //
+  //   final snap = await FirebaseFirestore.instance
+  //       .collection("Users")
+  //       .doc(globalDocID)
+  //       .collection("Groups")
+  //       .doc(widget.groupID)
+  //       .get();
+  //
+  //   final data = snap.data();
+  //
+  //   if (data != null) {
+  //
+  //     groupNameController.text =
+  //         data["groupName"] ?? "";
+  //   }
+  // }
 }

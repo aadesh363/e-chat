@@ -1,3 +1,4 @@
+import 'package:e_chat/home_page/ChatsHomePage.dart';
 import 'package:e_chat/utilities/commonWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_overlap/flutter_image_overlap.dart';
@@ -20,11 +21,21 @@ class GroupEdit extends StatefulWidget {
 
 class _GroupEditState extends State<GroupEdit> {
   TextEditingController searchEditingController = TextEditingController();
+  bool protectedGroup = false;
+  bool password = false;
 
   TextEditingController groupNameController = TextEditingController();
   List<Map<String, dynamic>> addMembers = [];
   Color pickerColor = const Color(0xff2C2D3A);
   List<Map<String, dynamic>> membersData = [];
+
+  Future<void> loadProtectionStatus() async {
+    final value = await getProtectionStatus();
+
+    setState(() {
+      protectedGroup = value;
+    });
+  }
 
   Future<void> getUsername(List members) async {
     membersData.clear();
@@ -59,6 +70,49 @@ class _GroupEditState extends State<GroupEdit> {
     print("Group ID----${widget.groupID}");
 
     getColor();
+    loadProtectionStatus();
+  }
+
+  Future<bool> getPasswordStatus() async {
+    try {
+      var snap = await FirebaseFirestore.instance
+          .collection("Users")
+          .doc(globalDocID)
+          .collection("Groups")
+          .doc(widget.groupID)
+          .get();
+
+      if (!snap.exists) {
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      debugPrint("Error getting protection status: $e");
+      return false;
+    }
+  }
+
+  Future<bool> getProtectionStatus() async {
+    try {
+      var snap = await FirebaseFirestore.instance
+          .collection("Users")
+          .doc(globalDocID)
+          .collection("Groups")
+          .doc(widget.groupID)
+          .get();
+
+      if (!snap.exists) {
+        return false;
+      }
+
+      final data = snap.data();
+
+      return data?["protected"] ?? false;
+    } catch (e) {
+      debugPrint("Error getting protection status: $e");
+      return false;
+    }
   }
 
   Future<void> getColor() async {
@@ -214,8 +268,22 @@ class _GroupEditState extends State<GroupEdit> {
                     .snapshots(),
 
                 builder: (context, snapshot) {
-                  if (snapshot.data == null) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (!snapshot.hasData || snapshot.data?.data() == null) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (context.mounted) {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (_) => ChatsHomePage()),
+                          (route) => false,
+                        );
+                      }
+                    });
+
+                    return const SizedBox();
                   }
 
                   final data = snapshot.data!.data() as Map<String, dynamic>;
@@ -411,9 +479,14 @@ class _GroupEditState extends State<GroupEdit> {
                                                 itemBuilder: (context, index) {
                                                   final user =
                                                       membersData[index];
+                                                  final isAdmin =
+                                                      user["docId"] ==
+                                                      widget.adminID;
 
                                                   return memberData(
-                                                    userName: user["userName"],
+                                                    userName: isAdmin
+                                                        ? " ${user["userName"]}:-Admin"
+                                                        : user["userName"],
 
                                                     mobileNumber:
                                                         user["MobileNumber"],
@@ -423,9 +496,20 @@ class _GroupEditState extends State<GroupEdit> {
                                                         context: context,
                                                         builder: (context) {
                                                           return AlertDialog(
-                                                            title: Text(
-                                                              "Are you sure you want to remove ${user["userName"]} from the group?",
-                                                            ),
+                                                            title:
+                                                                (isAdmin &&
+                                                                    members.length <
+                                                                        1)
+                                                                ? Text(
+                                                                    "Are you sure you want to remove yourself once \n once you left ${membersData.first["userName"]} will become new admin",
+                                                                  )
+                                                                : isAdmin
+                                                                ? Text(
+                                                                    "You want to left the the group?",
+                                                                  )
+                                                                : Text(
+                                                                    "Are you sure you want to remove ${user["userName"]} from the group?",
+                                                                  ),
 
                                                             titleTextStyle:
                                                                 Theme.of(
@@ -483,33 +567,110 @@ class _GroupEditState extends State<GroupEdit> {
                                                                     onTap: () async {
                                                                       final removedUserId =
                                                                           user["docId"];
-                                                                      await FirebaseFirestore
-                                                                          .instance
-                                                                          .collection(
-                                                                            "Users",
-                                                                          )
-                                                                          .doc(
-                                                                            removedUserId,
-                                                                          )
-                                                                          .collection(
-                                                                            "Groups",
-                                                                          )
-                                                                          .doc(
-                                                                            widget.groupID,
-                                                                          )
-                                                                          .delete();
-                                                                      for (var i
-                                                                          in members) {
-                                                                        if (i ==
-                                                                            removedUserId)
-                                                                          continue;
+                                                                      if (removedUserId ==
+                                                                          widget
+                                                                              .adminID) {
+                                                                        // print(members.first);
+                                                                        if (members.length >
+                                                                            1) {
+                                                                          final remainingMembers = members
+                                                                              .where(
+                                                                                (
+                                                                                  e,
+                                                                                ) =>
+                                                                                    e !=
+                                                                                    removedUserId,
+                                                                              )
+                                                                              .toList();
+
+                                                                          remainingMembers
+                                                                              .shuffle();
+                                                                          final newAdmin =
+                                                                              remainingMembers.first;
+
+                                                                          for (var i
+                                                                              in remainingMembers) {
+                                                                            await FirebaseFirestore.instance
+                                                                                .collection(
+                                                                                  "Users",
+                                                                                )
+                                                                                .doc(
+                                                                                  i,
+                                                                                )
+                                                                                .collection(
+                                                                                  "Groups",
+                                                                                )
+                                                                                .doc(
+                                                                                  widget.groupID,
+                                                                                )
+                                                                                .update({
+                                                                                  "adminId": newAdmin,
+                                                                                  "members": remainingMembers,
+                                                                                });
+                                                                          }
+                                                                          await FirebaseFirestore
+                                                                              .instance
+                                                                              .collection(
+                                                                                "Users",
+                                                                              )
+                                                                              .doc(
+                                                                                removedUserId,
+                                                                              )
+                                                                              .collection(
+                                                                                "Groups",
+                                                                              )
+                                                                              .doc(
+                                                                                widget.groupID,
+                                                                              )
+                                                                              .delete();
+                                                                        } else {
+                                                                          // FirebaseFirestore.instance.collection("Users").doc(globalDocID).collection("Groups").doc(widget.groupID).update(
+                                                                          //     {
+                                                                          //       "adminId":members.first
+                                                                          //     });
+                                                                          print(
+                                                                            "ams",
+                                                                          );
+                                                                        }
+                                                                      } else {
+                                                                        final updatedMembers = members
+                                                                            .where(
+                                                                              (
+                                                                                e,
+                                                                              ) =>
+                                                                                  e !=
+                                                                                  removedUserId,
+                                                                            )
+                                                                            .toList();
+
+                                                                        for (var i
+                                                                            in updatedMembers) {
+                                                                          await FirebaseFirestore
+                                                                              .instance
+                                                                              .collection(
+                                                                                "Users",
+                                                                              )
+                                                                              .doc(
+                                                                                i,
+                                                                              )
+                                                                              .collection(
+                                                                                "Groups",
+                                                                              )
+                                                                              .doc(
+                                                                                widget.groupID,
+                                                                              )
+                                                                              .update({
+                                                                                "members": updatedMembers,
+                                                                              });
+                                                                        }
+
                                                                         await FirebaseFirestore
                                                                             .instance
                                                                             .collection(
                                                                               "Users",
                                                                             )
                                                                             .doc(
-                                                                              i,
+                                                                              removedUserId,
                                                                             )
                                                                             .collection(
                                                                               "Groups",
@@ -517,37 +678,18 @@ class _GroupEditState extends State<GroupEdit> {
                                                                             .doc(
                                                                               widget.groupID,
                                                                             )
-                                                                            .update({
-                                                                              "members": FieldValue.arrayRemove(
-                                                                                [
-                                                                                  removedUserId,
-                                                                                ],
-                                                                              ),
-                                                                            });
+                                                                            .delete();
+
+                                                                        if (context
+                                                                            .mounted) {
+                                                                          Navigator.pop(
+                                                                            context,
+                                                                          );
+                                                                          Navigator.pop(
+                                                                            context,
+                                                                          );
+                                                                        }
                                                                       }
-                                                                      membersData.removeWhere(
-                                                                        (e) =>
-                                                                            e["docId"] ==
-                                                                            removedUserId,
-                                                                      );
-                                                                      setState(
-                                                                        () {},
-                                                                      );
-                                                                      CWidget.showLoader(
-                                                                        context,
-                                                                      );
-                                                                      await Future.delayed(
-                                                                        Duration(
-                                                                          seconds:
-                                                                              2,
-                                                                        ),
-                                                                      );
-                                                                      Navigator.pop(
-                                                                        context,
-                                                                      );
-                                                                      Navigator.pop(
-                                                                        context,
-                                                                      );
                                                                     },
 
                                                                     text: "Yes",
@@ -938,6 +1080,37 @@ class _GroupEditState extends State<GroupEdit> {
                               ),
                             ),
                           ),
+                        ),
+                        SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Text(
+                              "Protect chat with password",
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            Switch(
+                              value: protectedGroup,
+                              onChanged: (value) async {
+                                if (!password) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                    showModalBottomSheet(context: context, builder: (context) {
+return Text("SHow");
+                                    },);
+                                    },
+                                  );
+                                  await Future.delayed(Duration(seconds: 2));
+                                  Navigator.pop(context);
+                                }
+                                print("jhsjahj");
+                                setState(() {
+                                  protectedGroup = value;
+                                });
+                              },
+                            ),
+                          ],
                         ),
 
                         const Spacer(),

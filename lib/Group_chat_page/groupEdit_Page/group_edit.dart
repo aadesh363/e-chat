@@ -25,6 +25,7 @@ class _GroupEditState extends State<GroupEdit> {
   bool password = false;
 
   TextEditingController groupNameController = TextEditingController();
+
   List<Map<String, dynamic>> addMembers = [];
   Color pickerColor = const Color(0xff2C2D3A);
   List<Map<String, dynamic>> membersData = [];
@@ -71,6 +72,15 @@ class _GroupEditState extends State<GroupEdit> {
 
     getColor();
     loadProtectionStatus();
+    loadPasswordStatus();
+  }
+
+  Future<void> loadPasswordStatus() async {
+    final value = await getPasswordStatus();
+
+    setState(() {
+      password = value;
+    });
   }
 
   Future<bool> getPasswordStatus() async {
@@ -85,8 +95,8 @@ class _GroupEditState extends State<GroupEdit> {
       if (!snap.exists) {
         return false;
       }
-
-      return true;
+      final data = snap.data();
+      return data?.containsKey("passWord") ?? false;
     } catch (e) {
       debugPrint("Error getting protection status: $e");
       return false;
@@ -900,6 +910,9 @@ class _GroupEditState extends State<GroupEdit> {
 
                                                                                                         "members": updatedMembers,
                                                                                                       },
+                                                                                                      SetOptions(
+                                                                                                        merge: true,
+                                                                                                      ),
                                                                                                     );
 
                                                                                                 // update old users
@@ -1092,19 +1105,110 @@ class _GroupEditState extends State<GroupEdit> {
                             Switch(
                               value: protectedGroup,
                               onChanged: (value) async {
-                                if (!password) {
+                                if (!password&&protectedGroup==false) {
                                   showDialog(
                                     context: context,
                                     builder: (context) {
-                                    showModalBottomSheet(context: context, builder: (context) {
-return Text("SHow");
-                                    },);
-                                    return  SizedBox();
+                                      final passwordController =
+                                          TextEditingController();
+                                      return AlertDialog(
+                                        contentPadding: const EdgeInsets.all(
+                                          20,
+                                        ),
 
+                                        content: SingleChildScrollView(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+
+                                            children: [
+                                              CWidget.commonPinCodeField(
+                                                context,
+                                                validator: (val) {
+                                                  if (val == null ||
+                                                      val.isEmpty) {
+                                                    return "enter Pin";
+                                                  }
+
+                                                  if (val.length != 4) {
+                                                    return "Enter 4 digit Pin";
+                                                  }
+
+                                                  return null;
+                                                },
+                                                controller: passwordController,
+                                              ),
+                                              SizedBox(height: 20),
+
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Icon(Icons.lock, size: 16),
+                                                  Text(
+                                                    "Enter a pass-word to save",
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(height: 20),
+                                              bottomBtn(
+                                                context: context,
+                                                controller: passwordController,
+                                                onSave: () async {
+                                                  CWidget.showLoader2(context);
+                                                  FirebaseFirestore.instance
+                                                      .collection("Users")
+                                                      .doc(globalDocID)
+                                                      .collection("Groups")
+                                                      .doc(widget.groupID)
+                                                      .update({
+                                                        "passWord":
+                                                            passwordController
+                                                                .text
+                                                                .toString(),
+                                                      });
+                                                  FirebaseFirestore.instance
+                                                      .collection("Users")
+                                                      .doc(globalDocID)
+                                                      .collection("Groups")
+                                                      .doc(widget.groupID)
+                                                      .update({
+                                                        "protected": true,
+                                                      });
+                                                  await Future.delayed(
+                                                    Duration(seconds: 2),
+                                                  );
+
+                                                  if (context.mounted) {
+                                                    Navigator.pop(context);
+                                                    Navigator.pop(context);
+                                                  }
+                                                  Navigator.pop(context);
+                                                  CWidget.toast(
+                                                    msg: "Password Save",
+                                                    backgroundColor:
+                                                        Colors.green,
+                                                  );
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
                                     },
                                   );
-                                  await Future.delayed(Duration(seconds: 2));
-                                  Navigator.pop(context);
+
+                                  // await Future.delayed(Duration(seconds: 2));
+                                  // Navigator.pop(context);
+                                } else {
+                                  FirebaseFirestore.instance
+                                      .collection("Users")
+                                      .doc(globalDocID)
+                                      .collection("Groups")
+                                      .doc(widget.groupID)
+                                      .update({"protected": value});
                                 }
                                 print("jhsjahj");
                                 setState(() {
@@ -1136,7 +1240,7 @@ return Text("SHow");
                         const SizedBox(height: 20),
 
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
 
                           child: SizedBox(
                             width: double.infinity,
@@ -1290,4 +1394,58 @@ return Text("SHow");
   //         data["groupName"] ?? "";
   //   }
   // }
+
+  Widget bottomBtn({
+    required BuildContext context,
+    required TextEditingController controller,
+    required VoidCallback onSave,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+
+      children: [
+        CWidget.commonELBTN(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+
+          text: "Cancel",
+
+          width: 100,
+
+          color: AppColors.pinSkipBtnLight,
+
+          textColor: AppColors.blueTextClr,
+        ),
+
+        const SizedBox(width: 24),
+
+        CWidget.commonELBTNG(
+          context,
+
+          onTap: () {
+            if (controller.text.length != 4) {
+              CWidget.toast(msg: "Enter 4 digit pin");
+
+              return;
+            }
+
+            onSave();
+          },
+
+          text: "Save",
+
+          width: 100,
+
+          fontSize: 18,
+
+          gradient: AppColors.gradient,
+
+          color: AppColors.backgroundLight,
+
+          height: 60,
+        ),
+      ],
+    );
+  }
 }

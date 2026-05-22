@@ -606,69 +606,72 @@ class _AddGroupState extends State<AddGroup> {
                       ),
                     ),
 
-                    CWidget.commonELBTNG(
-                      context,
-                      onTap: () async {
-                        if(nameEditingController.text.trim()==""){
-                          CWidget.toast(msg: "add group name first");
+                    Center(
+                      child: CWidget.commonELBTNG(
+
+                        context,
+                        onTap: () async {
+                          if(nameEditingController.text.trim()==""){
+                            CWidget.toast(msg: "add group name first");
+                            return;
+                          }
+                          if(participants.isEmpty){
+                            CWidget.toast(msg: "add participants first");
                           return;
-                        }
-                        if(participants.isEmpty){
-                          CWidget.toast(msg: "add participants first");
-                        return;
-                        }
+                          }
 
-                        var adminSnap = await FirebaseFirestore.instance
-                            .collection("Users")
-                            .doc(globalDocID)
-                            .get();
+                          var adminSnap = await FirebaseFirestore.instance
+                              .collection("Users")
+                              .doc(globalDocID)
+                              .get();
 
-                        var adminData = adminSnap.data();
-                        print(participants);
-                        //  print("participants");
-                        String groupID= FirebaseFirestore.instance.collection("temprory").doc().id;
+                          var adminData = adminSnap.data();
+                          print(participants);
+                          //  print("participants");
+                          String groupID= FirebaseFirestore.instance.collection("temprory").doc().id;
 
-                        GroupManager.createGroup(
-                          userId: globalDocID,
-                          groupName: nameEditingController.text,
-                          members: participants
-                              .map<String>((e) => e["docId"].toString())
-                              .toList(),
-                          groupPic: [
-                            adminData?["userPic"]
-                          ,
-                            ...participants.map<String>(
-                                  (e) => e["userPic"].toString(),
-                            ),
-                          ],
-                            gID: groupID,
-                        );
-                          for (var ids in participants){
-                            GroupManager.createGroup(gID: groupID,groupName: nameEditingController.text, members: participants
+                          GroupManager.createGroup(
+                            userId: globalDocID,
+                            groupName: nameEditingController.text,
+                            members: participants
                                 .map<String>((e) => e["docId"].toString())
-                                .toList(), groupPic: [
+                                .toList(),
+                            groupPic: [
                               adminData?["userPic"]
-                              ,
+                            ,
                               ...participants.map<String>(
                                     (e) => e["userPic"].toString(),
                               ),
-                            ],userId: ids["docId"]);
-                          }
-                        CWidget.showLoader(context);
-                        await Future.delayed(Duration(seconds: 2));
+                            ],
+                              gID: groupID,
+                          );
+                            for (var ids in participants){
+                              GroupManager.createGroup(gID: groupID,groupName: nameEditingController.text, members: participants
+                                  .map<String>((e) => e["docId"].toString())
+                                  .toList(), groupPic: [
+                                adminData?["userPic"]
+                                ,
+                                ...participants.map<String>(
+                                      (e) => e["userPic"].toString(),
+                                ),
+                              ],userId: ids["docId"]);
+                            }
+                          CWidget.showLoader(context);
+                          await Future.delayed(Duration(seconds: 2));
 
-                        Navigator.of(context).pop();
-                        Navigator.of(context).pop();
-                        setState(() {
-                          currentIndex=1;
+                          Navigator.of(context).pop();
+                          Navigator.of(context).pop();
+                          setState(() {
+                            currentIndex=1;
 
-                        });
-                      },
-                      text: "Create Group",
-                      width: 345,
-                      fontSize: 20,
-                      gradient: AppColors.gradient,
-                      color: Colors.white,
+                          });
+                        },
+                        text: "Create Group",
+                        width: double.infinity,
+                        fontSize: 20,
+                        gradient: AppColors.gradient,
+                        color: Colors.white,
+                      ),
                     ),
                     SizedBox(height: 45),
                   ],

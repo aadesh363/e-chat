@@ -236,6 +236,7 @@ class _GroupEditState extends State<GroupEdit> {
                               ),
                               actions: [
                                 CWidget.commonELBTNG(
+                                  color: Colors.white,
                                   context,
                                   onTap: () async {
                                     await FirebaseFirestore.instance
@@ -248,7 +249,7 @@ class _GroupEditState extends State<GroupEdit> {
                                     Navigator.pop(context);
                                   },
                                   text: "Save",
-                                  width: 50,
+                                  width: 80,
                                   fontSize: 12,
                                   gradient: AppColors.gradient,
                                 ),
@@ -360,6 +361,7 @@ class _GroupEditState extends State<GroupEdit> {
                                         Row(
                                           children: [
                                             CWidget.commonELBTNG(
+                                              color: Colors.white,
                                               context,
                                               gradient: AppColors.gradient,
                                               onTap: () {
@@ -368,12 +370,13 @@ class _GroupEditState extends State<GroupEdit> {
 
                                               text: "Cancel",
 
-                                              width: 100,
+                                              width: 80,
                                               fontSize: 16,
                                             ),
                                             Spacer(),
 
                                             CWidget.commonELBTNG(
+                                              color: Colors.white,
                                               context,
                                               gradient: AppColors.gradient,
                                               onTap: () async {
@@ -747,6 +750,7 @@ class _GroupEditState extends State<GroupEdit> {
                                                   Row(
                                                     children: [
                                                       CWidget.commonELBTN(
+
                                                         onPressed: () {
                                                           Navigator.pop(
                                                             context,
@@ -1222,6 +1226,7 @@ class _GroupEditState extends State<GroupEdit> {
                         const Spacer(),
 
                         CWidget.commonELBTNG(
+                          color: Colors.white,
                           context,
 
                           onTap: () {
@@ -1272,27 +1277,186 @@ class _GroupEditState extends State<GroupEdit> {
 
                                 const SizedBox(height: 13),
 
-                                Row(
-                                  children: [
-                                    Image.asset(
-                                      "assets/icons/logout_icon.png",
+                                InkWell(
+                                  onTap: () {
+                                    showDialog(
 
-                                      width: 20,
-                                      height: 20,
-                                    ),
+                                      context: context,
 
-                                    const SizedBox(width: 12),
+                                      builder: (context) {
 
-                                    const Text(
-                                      "Leave Group",
+                                        return AlertDialog(
 
-                                      style: TextStyle(
-                                        color: Colors.red,
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 16,
+                                          title: Center(
+
+                                            child: Text(
+
+                                              "You really want to leave ${data["groupName"]}",
+
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ),
+
+                                          actions: [
+
+                                            TextButton(
+
+                                              onPressed: () {
+
+                                                Navigator.pop(context);
+                                              },
+
+                                              child: Text("Cancel"),
+                                            ),
+
+                                            TextButton(
+
+                                              onPressed: () async {
+
+                                                final currentUserId = globalDocID;
+
+                                                final members = List<String>.from(
+                                                  data["members"] ?? [],
+                                                );
+
+                                                // ADMIN LEAVING
+                                                if (currentUserId == widget.adminID) {
+
+                                                  final remainingMembers = members
+                                                      .where((e) => e != currentUserId)
+                                                      .toList();
+
+                                                  // NO MEMBERS LEFT
+                                                  if (remainingMembers.isEmpty) {
+
+                                                    await FirebaseFirestore.instance
+                                                        .collection("Users")
+                                                        .doc(currentUserId)
+                                                        .collection("Groups")
+                                                        .doc(widget.groupID)
+                                                        .delete();
+
+                                                  } else {
+
+                                                    // RANDOM NEW ADMIN
+                                                    remainingMembers.shuffle();
+
+                                                    final newAdmin =
+                                                        remainingMembers.first;
+
+                                                    // UPDATE ALL REMAINING USERS
+                                                    for (var memberId
+                                                    in remainingMembers) {
+
+                                                      await FirebaseFirestore.instance
+                                                          .collection("Users")
+                                                          .doc(memberId)
+                                                          .collection("Groups")
+                                                          .doc(widget.groupID)
+                                                          .update({
+
+                                                        "adminId": newAdmin,
+
+                                                        "members": remainingMembers,
+                                                      });
+                                                    }
+
+                                                    // REMOVE GROUP FROM OLD ADMIN
+                                                    await FirebaseFirestore.instance
+                                                        .collection("Users")
+                                                        .doc(currentUserId)
+                                                        .collection("Groups")
+                                                        .doc(widget.groupID)
+                                                        .delete();
+                                                  }
+
+                                                }
+
+                                                // NORMAL MEMBER LEAVING
+                                                else {
+
+                                                  final updatedMembers = members
+                                                      .where(
+                                                        (e) => e != currentUserId,
+                                                  )
+                                                      .toList();
+
+                                                  // UPDATE OTHER USERS
+                                                  for (var memberId
+                                                  in updatedMembers) {
+
+                                                    await FirebaseFirestore.instance
+                                                        .collection("Users")
+                                                        .doc(memberId)
+                                                        .collection("Groups")
+                                                        .doc(widget.groupID)
+                                                        .update({
+
+                                                      "members": updatedMembers,
+                                                    });
+                                                  }
+
+                                                  // DELETE GROUP FOR CURRENT USER
+                                                  await FirebaseFirestore.instance
+                                                      .collection("Users")
+                                                      .doc(currentUserId)
+                                                      .collection("Groups")
+                                                      .doc(widget.groupID)
+                                                      .delete();
+                                                }
+
+                                                if (context.mounted) {
+
+                                                  Navigator.pushAndRemoveUntil(
+
+                                                    context,
+
+                                                    MaterialPageRoute(
+                                                      builder: (_) =>
+                                                          ChatsHomePage(),
+                                                    ),
+
+                                                        (route) => false,
+                                                  );
+                                                }
+                                              },
+
+                                              child: Text(
+                                                "Leave",
+                                                style: TextStyle(
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );                                  },
+                                  child: Row(
+                                    children: [
+                                      Image.asset(
+                                        "assets/icons/logout_icon.png",
+                                  
+                                        width: 20,
+                                        height: 20,
                                       ),
-                                    ),
-                                  ],
+                                  
+                                      const SizedBox(width: 12),
+                                  
+                                      const Text(
+                                        "Leave Group",
+                                  
+                                        style: TextStyle(
+                                          color: Colors.red,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
@@ -1435,7 +1599,7 @@ class _GroupEditState extends State<GroupEdit> {
 
           text: "Save",
 
-          width: 100,
+          width: 80,
 
           fontSize: 18,
 

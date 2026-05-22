@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_chat/home_page/ChatsHomePage.dart';
 import 'package:e_chat/home_page/homePage.dart';
 import 'package:e_chat/utilities/Fire_base_manager.dart';
 import 'package:e_chat/utilities/commonColors.dart';
@@ -136,7 +137,7 @@ class _PINSecurityState extends State<PINSecurity> {
 
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => Homepage()),
+                      MaterialPageRoute(builder: (context) => ChatsHomePage()),
                     );
                   } else {
                     CWidget.toast(msg: "Wrong pin");
@@ -245,7 +246,7 @@ class _PINSecurityState extends State<PINSecurity> {
 
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => Homepage()),
+                    MaterialPageRoute(builder: (context) =>  ChatsHomePage()),
                   );
                   SharedPref.setBool(key: PrefKeys.logInKey, value: true);
                   SharedPref.setBool(key: PrefKeys.registeredUser, value: true);

@@ -196,109 +196,242 @@ class CWidget {
         bool isBorder = false,
         String initialSelection =""
   }) {
-    return TextFormField(
+    return  TextFormField(
+
       validator: validator,
 
       onTap: () {
+
         onTyping?.call(false);
+
         typeComplete?.call(true);
       },
 
-      onChanged:onChanges?? (value) {
-        onTyping?.call(false);
-        typeComplete?.call(true);
+      onChanged: onChanges ?? (value) {
 
+        onTyping?.call(false);
+
+        typeComplete?.call(true);
       },
+
       onEditingComplete: () {
+
         print(typeComplete);
-        //onTyping(true);
       },
+
       onTapUpOutside: (event) {
+
         onTyping?.call(true);
       },
 
       controller: controller,
+
       style: TextStyle(
+
         fontSize: 20,
+
         fontWeight: FontWeight.w400,
-        color: Theme.of(context).colorScheme.onSurface,
+
+        color: Theme.of(context)
+            .colorScheme
+            .onSurface,
       ),
+
       keyboardType: TextInputType.phone,
 
-      textAlignVertical: TextAlignVertical.center,
-      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9+]'))],
+      textAlignVertical:
+      TextAlignVertical.center,
+
+      inputFormatters: [
+
+        FilteringTextInputFormatter.allow(
+          RegExp(r'[0-9+]'),
+        ),
+      ],
+
       decoration: InputDecoration(
-        enabledBorder: isBorder?OutlineInputBorder(borderSide: BorderSide(color: AppColors.borderClr)):UnderlineInputBorder(borderSide: BorderSide.none),
-        focusedBorder:isBorder?OutlineInputBorder(borderSide: BorderSide(color: AppColors.borderClr)): UnderlineInputBorder(
+
+errorStyle: TextStyle(
+
+  fontSize: 16,
+
+  fontWeight: FontWeight.w400,
+
+  color: Theme.of(context)
+      .colorScheme
+      .error,
+),
+        prefixIconConstraints:
+        BoxConstraints(
+          minWidth: 0,
+          minHeight: 0,
+        ),
+
+        enabledBorder: isBorder
+
+            ? OutlineInputBorder(
+
           borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.primary,
+            color: AppColors.borderClr,
+          ),
+        )
+
+            : UnderlineInputBorder(
+          borderSide: BorderSide.none,
+        ),
+
+        focusedBorder: isBorder
+
+            ? OutlineInputBorder(
+
+          borderSide: BorderSide(
+            color: AppColors.borderClr,
+          ),
+        )
+
+            : UnderlineInputBorder(
+
+          borderSide: BorderSide(
+
+            color: Theme.of(context)
+                .colorScheme
+                .primary,
+
             width: 3,
           ),
         ),
+
         hintText: "00 0000 0000 ",
+
         hintStyle: TextStyle(
-          fontSize: 24,
+
+          fontSize:
+          MediaQuery.of(context)
+              .size
+              .width *
+              0.06,
 
           fontWeight: FontWeight.w400,
-          fontStyle: FontStyle.normal,
-          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
-        ),
 
+          fontStyle: FontStyle.normal,
+
+          letterSpacing:
+          MediaQuery.of(context)
+              .size
+              .width *
+              0.01,
+
+          color: Theme.of(context)
+              .colorScheme
+              .onSurface
+              .withOpacity(0.5),
+        ),
         prefixIcon: StatefulBuilder(
+
           builder: (context, setState) {
-            return Row(
-              mainAxisSize: MainAxisSize.min,
+
+            return Wrap(
+
+              crossAxisAlignment:
+              WrapCrossAlignment.center,
+
               children: [
-                CountryCodePicker(dialogBackgroundColor: dialogBackgroundColor,
+
+                CountryCodePicker(
+
+                  dialogBackgroundColor:
+                  dialogBackgroundColor,
 
                   onChanged: (country) {
 
-
                     setState(() {
-                      onCountryChanged(country.dialCode ?? "+91");
+
+                      onCountryChanged(
+                        country.dialCode ?? "+91",
+                      );
                     });
                   },
 
-                  initialSelection: dialCode,
+                  initialSelection:
+                  dialCode,
 
-                  pickerStyle: PickerStyle.bottomSheet,
+                  pickerStyle:
+                  PickerStyle.bottomSheet,
+
                   showCountryOnly: false,
-                  showOnlyCountryWhenClosed: false,
 
-                  textStyle: Theme.of(context).textTheme.titleSmall,
-                  searchStyle: Theme.of(context).textTheme.titleSmall,
-                  dialogTextStyle: Theme.of(context).textTheme.titleSmall,
+                  showOnlyCountryWhenClosed:
+                  false,
 
-                  // Ensure flag is visible
+                  textStyle:
+                  Theme.of(context)
+                      .textTheme
+                      .titleSmall,
+
+                  searchStyle:
+                  Theme.of(context)
+                      .textTheme
+                      .titleSmall,
+
+                  dialogTextStyle:
+                  Theme.of(context)
+                      .textTheme
+                      .titleSmall,
+
                   builder: (code) => Row(
+
+                    mainAxisSize:
+                    MainAxisSize.min,
+
                     children: [
-                      SizedBox(width: 10,),
+
+                      SizedBox(width: 10),
+
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
+
+                        borderRadius:
+                        BorderRadius.circular(4),
+
                         child: Image.asset(
+
                           code!.flagUri!,
-                          package: 'country_code_picker',
-                          width: 33.0,
+
+                          package:
+                          'country_code_picker',
+
+                          width: 33,
+
                           height: 24,
                         ),
                       ),
+
                       SizedBox(width: 6),
 
                       Image.asset(
+
                         "assets/icons/arrow_down.png",
+
                         width: 12,
+
                         height: 6,
                       ),
                     ],
                   ),
                 ),
+
                 SizedBox(width: 16),
+
                 Text(
+
                   "($dialCode)",
+
                   style: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withOpacity(0.6),
+
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.6),
+
                     fontSize: 18,
                   ),
                 ),

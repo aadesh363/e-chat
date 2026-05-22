@@ -38,14 +38,16 @@ class _RegistrationState extends State<Registration> {
         onTap: () {
           FocusScope.of(context).unfocus();
         },
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              headerSection(context),
-              middleSection(context),
+        child: ListView(
+          padding: .zero,
+          physics: ScrollPhysics(),
+          children: [
+            headerSection(context),
+            SizedBox(height: 50),
 
-            ],
-          ),
+            middleSection(context),
+
+          ],
         ),
       ),
     );
@@ -166,167 +168,326 @@ class _RegistrationState extends State<Registration> {
     final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return SizedBox(
-      height: 500,
-      width: 345,
-      child: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            Text(
-              "You will get a code via sms.",
-              style: Theme.of(
+    return Padding(
+      padding:EdgeInsets.symmetric(horizontal: 16),
+      child: SizedBox(
+
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              Text(
+                "You will get a code via sms.",
+                style: Theme.of(
+                  context,
+                ).textTheme.titleSmall?.copyWith(color: cs.onSurface),
+              ),
+              SizedBox(height: 30),
+              CWidget.commonTextField(
+                dialogBackgroundColor: isDark?AppColors.backgroundDark:AppColors.backgroundLight,
                 context,
-              ).textTheme.titleSmall?.copyWith(color: cs.onSurface),
-            ),
-            SizedBox(height: 30),
-            CWidget.commonTextField(
-              dialogBackgroundColor: isDark?AppColors.backgroundDark:AppColors.backgroundLight,
-              context,
-              dialCode: dialCode,
-              onCountryChanged: (code) {
-                setState(() {
-                  dialCode = code;
-                });
-              },
-              validator: (val) {
-                if (val == null || val.isEmpty) {
-                  return "Enter your mobile number";
-                }
-
-                return null;
-              },
-              onTyping: (valueFromKeyboard) {
-                if (phoneEditingController.text.isEmpty) {
+                dialCode: dialCode,
+                onCountryChanged: (code) {
                   setState(() {
-                    blankPhoneNo = false;
+                    dialCode = code;
                   });
-                  return;
-                }
-                setState(() {
-                  typeNotStart = valueFromKeyboard;
-                });
-              },
-              typeComplete: (typeCompleted) {
-                setState(() {
-                  typeComplete = _formKey.currentState?.validate() ?? false;
-                });
-              },
-              controller: phoneEditingController,
-            ),
+                },
+                validator: (val) {
+                  if (val == null || val.isEmpty) {
+                    return "Enter your mobile number";
+                  }
 
-            SizedBox(height: 42),
-            Row(
-              children: [
-                Row(
+                  return null;
+                },
+                onTyping: (valueFromKeyboard) {
+                  if (phoneEditingController.text.isEmpty) {
+                    setState(() {
+                      blankPhoneNo = false;
+                    });
+                    return;
+                  }
+                  setState(() {
+                    typeNotStart = valueFromKeyboard;
+                  });
+                },
+                typeComplete: (typeCompleted) {
+                  setState(() {
+                    typeComplete = _formKey.currentState?.validate() ?? false;
+                  });
+                },
+                controller: phoneEditingController,
+              ),
+
+              SizedBox(height: 42),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8),
+                child: Row(
+
+                  mainAxisAlignment:
+                  MainAxisAlignment.spaceBetween,
+
                   children: [
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          isChecked = !isChecked;
-                          // SharedPref.setBool(key: PrefKeys.logInKey, value: true);
-                        });
-                      },
-                      child: Container(
-                        height: 24,
-                        width: 24,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: cs.secondary.withOpacity(0.5),
+
+                    Expanded(
+
+                      child: Row(
+
+                        children: [
+
+                          InkWell(
+
+                            onTap: () {
+
+                              setState(() {
+
+                                isChecked = !isChecked;
+
+                                // SharedPref.setBool(
+                                //   key: PrefKeys.logInKey,
+                                //   value: true,
+                                // );
+                              });
+                            },
+
+                            child: Container(
+
+                              height:
+                              MediaQuery.of(context)
+                                  .size
+                                  .width *
+                                  0.06,
+
+                              width:
+                              MediaQuery.of(context)
+                                  .size
+                                  .width *
+                                  0.06,
+
+                              decoration: BoxDecoration(
+
+                                border: Border.all(
+
+                                  color: cs.secondary
+                                      .withOpacity(0.5),
+                                ),
+
+                                borderRadius:
+                                BorderRadius.all(
+                                  Radius.circular(6),
+                                ),
+                              ),
+
+                              child: isChecked
+
+                                  ? Image.asset(
+                                "assets/images/tick_checkbox.png",
+                              )
+
+                                  : null,
+                            ),
                           ),
-                          borderRadius: BorderRadius.all(Radius.circular(6)),
-                        ),
-                        child: isChecked
-                            ? Image.asset("assets/images/tick_checkbox.png")
-                            : null,
+
+                          SizedBox(
+
+                            width:
+                            MediaQuery.of(context)
+                                .size
+                                .width *
+                                0.03,
+                          ),
+
+                          Flexible(
+
+                            child: Text(
+
+                              "Remember me",
+
+                              overflow:
+                              TextOverflow.ellipsis,
+
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall
+                                  ?.copyWith(
+
+                                fontWeight:
+                                FontWeight.w700,
+
+                                color:
+                                cs.onSurface,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    SizedBox(width: 12),
-                    Text(
-                      "Remember me",
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: cs.onSurface,
-                      ),
+
+                    SizedBox(
+
+                      width:
+                      MediaQuery.of(context)
+                          .size
+                          .width *
+                          0.03,
                     ),
-                    SizedBox(width: 110),
+
                     InkWell(
-                      borderRadius: BorderRadius.circular(30),
+
+                      borderRadius:
+                      BorderRadius.circular(30),
 
                       onTap: () async {
-                        try{
+
+                        try {
 
                           setState(() {
+
                             requested = true;
                           });
 
-                          if (_formKey.currentState!.validate()) {
-                          if (await FireBaseManager.searchData(
-                            target: phoneEditingController.text,
-                            key: FireBaseManager.mobileNumber,
-                          )) {
-                            print("hello");
-                            FireBaseManager.addCollection(
-                              data: {
-                                FireBaseManager.mobileNumber:
-                                dialCode+" "+phoneEditingController.text,
-                                FireBaseManager.dialCOde: dialCode,
-                                "number":phoneEditingController.text,
-                              },
-                            );
+                          if (_formKey.currentState!
+                              .validate()) {
 
-                            SharedPref.setString(
-                              key: PrefKeys.userPhone,
-                              value: phoneEditingController.text,
-                            );
-                            SharedPref.setString(
-                              key: PrefKeys.countryCode,
-                              value: dialCode,
-                            );
-                            await Future.delayed(Duration(seconds: 2));
+                            if ((await FireBaseManager.searchData(
 
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => RegistrationOtp(),
-                              ),
-                            );
-                          } else {
-                           CWidget.toast(msg: "Number already exists ");
+                              target:
+                              phoneEditingController.text,
+
+                              key:
+                              FireBaseManager.mobileNumber,
+                            ))) {
+
+                              print("hello");
+
+                              FireBaseManager.addCollection(
+
+                                data: {
+
+                                  FireBaseManager.mobileNumber:
+                                  dialCode +
+                                      " " +
+                                      phoneEditingController
+                                          .text,
+
+                                  FireBaseManager.dialCOde:
+                                  dialCode,
+
+                                  "number":
+                                  phoneEditingController
+                                      .text,
+                                },
+                              );
+
+                              SharedPref.setString(
+
+                                key: PrefKeys.userPhone,
+
+                                value:
+                                phoneEditingController.text,
+                              );
+
+                              SharedPref.setString(
+
+                                key: PrefKeys.countryCode,
+
+                                value: dialCode,
+                              );
+
+                              await Future.delayed(
+                                Duration(seconds: 2),
+                              );
+
+                              Navigator.push(
+
+                                context,
+
+                                MaterialPageRoute(
+
+                                  builder: (context) =>
+                                      RegistrationOtp(),
+                                ),
+                              );
+
+                            } else {
+
+                              CWidget.toast(
+
+                                msg:
+                                "Number already exists ",
+                              );
+                            }
                           }
-                        }}
-                        catch(e){
-                          print("Exception in registration page:::$e");
-                        }
-                        finally{
+
+                        } catch (e) {
+
+                          print(
+                            "Exception in registration page:::$e",
+                          );
+
+                        } finally {
+
                           setState(() {
-                            requested= false;
+
+                            requested = false;
                           });
                         }
                       },
+
                       child: Container(
-                        width: 50,
-                        height: 50,
+
+                        width:
+                        MediaQuery.of(context)
+                            .size
+                            .width *
+                            0.13,
+
+                        height:
+                        MediaQuery.of(context)
+                            .size
+                            .width *
+                            0.13,
+
                         decoration: BoxDecoration(
+
                           gradient: typeComplete
+
                               ? AppColors.gradient
-                              : AppColors.gradient.withOpacity(.5),
+
+                              : AppColors.gradient
+                              .withOpacity(.5),
+
                           shape: BoxShape.circle,
                         ),
+
                         child: Center(
-                          child: requested? CircularProgressIndicator(color: Theme.of(context).colorScheme.surface,) :Image.asset(
+
+                          child: requested
+
+                              ? CircularProgressIndicator(
+
+                            color: Theme.of(context)
+                                .colorScheme
+                                .surface,
+                          )
+
+                              : Image.asset(
 
                             "assets/images/arrow_image.png",
-                            width: 29,
+
+                            width:
+                            MediaQuery.of(context)
+                                .size
+                                .width *
+                                0.07,
                           ),
                         ),
                       ),
                     ),
                   ],
-                ),
-              ],
-            ),
-          ],
+                )
+              ),
+            ],
+          ),
         ),
       ),
     );
